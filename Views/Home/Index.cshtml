@@ -1,0 +1,400 @@
+﻿@model BeatSlayerServer.Utils.HomeModel
+@{
+    Layout = null;
+    bool isDevServer = Model.ServerType == BeatSlayerServer.Models.Configuration.Modules.ServerType.Development;
+    string classString = isDevServer ? "server-dev" : "server-prod";
+    string textString = isDevServer ? "Yay! You're on Dev Server ^-^" : "Production server";
+}
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Beat Slayer</title>
+    <link rel="icon" href="images/bsicon.png">
+    <link rel="stylesheet" href="css/Index.css?version=123" />
+
+</head>
+<body>
+    <div class="wrap">
+        <div class="pan status-ok">
+            <span>Server is alive!</span>
+        </div>
+        <div class="pan @classString">
+            <span>@textString</span>
+        </div>
+
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/data.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script src="https://code.highcharts.com/modules/export-data.js"></script>
+        <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+
+        <div id="container" class="chart"></div>
+        <div id="mapscontainer" class="chart"></div>
+
+        <script>
+
+            Highcharts.getJSON(
+                '/Home/GetOnlineData?offset=' + new Date().getTimezoneOffset(),
+                function (data) {
+
+
+
+                    var times = [];
+
+                    for (var i = 0; i < data.chartInfo.times.length; i++) {
+                        if (data.chartInfo.times[i] == null) continue;
+
+                        var time = data.chartInfo.times[i];
+                        times.push(time);
+                    }
+
+
+                    Highcharts.chart('container', {
+                        chart: {
+                            zoomType: 'x'
+                        },
+                        title: {
+                            text: 'Heartbeat'
+                        },
+                        subtitle: {
+                            text: data.chartInfo.subtitle
+                        },
+                        xAxis: {
+                            categories: data.chartInfo.times
+                        },
+                        yAxis: {
+
+                        },
+
+                        plotOptions: {
+                            area: {
+                                fillColor: {
+                                    linearGradient: {
+                                        x1: 0,
+                                        y1: 0,
+                                        x2: 0,
+                                        y2: 1
+                                    },
+                                    stops: [
+                                        [0, Highcharts.getOptions().colors[0]],
+                                        [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                                    ]
+                                },
+                                marker: {
+                                    radius: 2
+                                },
+                                lineWidth: 1,
+                                states: {
+                                    hover: {
+                                        lineWidth: 1
+                                    }
+                                },
+                                threshold: null
+                            }
+                        },
+
+                        series: [{
+                            type: 'area',
+                            name: 'Online (old version)',
+                            data: data.chartInfo.oldOnlineData
+                        },
+                        {
+                            type: 'area',
+                            name: 'Online',
+                            data: data.chartInfo.signalrOnlineData
+                        },
+                        {
+                            type: 'area',
+                            name: 'Game launches',
+                            data: data.chartInfo.gameLaunches
+                        },
+                        {
+                            type: 'area',
+                            name: 'Launches without account',
+                            data: data.chartInfo.gameLaunchesAnonim
+                        }]
+                    });
+                }
+            );
+
+
+
+            Highcharts.getJSON(
+                '/Home/GetMapStatistics?offset=' + new Date().getTimezoneOffset(),
+                function (data) {
+
+
+
+                    var times = [];
+
+                    for (var i = 0; i < data.chartInfo.times.length; i++) {
+                        if (data.chartInfo.times[i] == null) continue;
+
+                        var time = data.chartInfo.times[i];
+                        times.push(time);
+                    }
+
+
+                    Highcharts.chart('mapscontainer', {
+                        chart: {
+                            zoomType: 'x'
+                        },
+                        title: {
+                            text: 'Maps'
+                        },
+                        subtitle: {
+                            text: data.chartInfo.subtitle
+                        },
+                        xAxis: {
+                            categories: data.chartInfo.times
+                        },
+                        yAxis: {
+
+                        },
+
+                        plotOptions: {
+                            area: {
+                                fillColor: {
+                                    linearGradient: {
+                                        x1: 0,
+                                        y1: 0,
+                                        x2: 0,
+                                        y2: 1
+                                    },
+                                    stops: [
+                                        [0, Highcharts.getOptions().colors[0]],
+                                        [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                                    ]
+                                },
+                                marker: {
+                                    radius: 2
+                                },
+                                lineWidth: 1,
+                                states: {
+                                    hover: {
+                                        lineWidth: 1
+                                    }
+                                },
+                                threshold: null
+                            }
+                        },
+
+                        series: [
+                            {
+                                type: 'area',
+                                name: 'Approved maps played',
+                                data: data.chartInfo.gamesApprovedCount
+                            },
+                            {
+                                type: 'area',
+                                name: 'Maps played',
+                                data: data.chartInfo.gamesCount
+                            }]
+                    });
+                }
+            );
+
+
+
+
+            Highcharts.theme = {
+                colors: ['#2b908f', '#90ee7e', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066',
+                    '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
+                chart: {
+                    backgroundColor: {
+                        linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                        stops: [
+                            [0, '#2a2a2b'],
+                            [1, '#3e3e40']
+                        ]
+                    },
+                    style: {
+                        fontFamily: '\'Unica One\', sans-serif'
+                    },
+                    plotBorderColor: '#606063'
+                },
+                title: {
+                    style: {
+                        color: '#E0E0E3',
+                        fontSize: '20px'
+                    }
+                },
+                subtitle: {
+                    style: {
+                        color: '#E0E0E3'
+                    }
+                },
+                xAxis: {
+                    gridLineColor: '#707073',
+                    labels: {
+                        style: {
+                            color: '#E0E0E3'
+                        }
+                    },
+                    lineColor: '#707073',
+                    minorGridLineColor: '#505053',
+                    tickColor: '#707073',
+                    title: {
+                        style: {
+                            color: '#A0A0A3'
+                        }
+                    }
+                },
+                yAxis: {
+                    gridLineColor: '#707073',
+                    labels: {
+                        style: {
+                            color: '#E0E0E3'
+                        }
+                    },
+                    lineColor: '#707073',
+                    minorGridLineColor: '#505053',
+                    tickColor: '#707073',
+                    tickWidth: 1,
+                    title: {
+                        style: {
+                            color: '#A0A0A3'
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                    style: {
+                        color: '#F0F0F0'
+                    }
+                },
+                plotOptions: {
+                    series: {
+                        dataLabels: {
+                            color: '#F0F0F3',
+                            style: {
+                                fontSize: '13px'
+                            }
+                        },
+                        marker: {
+                            lineColor: '#333'
+                        }
+                    },
+                    boxplot: {
+                        fillColor: '#505053'
+                    },
+                    candlestick: {
+                        lineColor: 'white'
+                    },
+                    errorbar: {
+                        color: 'white'
+                    }
+                },
+                legend: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    itemStyle: {
+                        color: '#E0E0E3'
+                    },
+                    itemHoverStyle: {
+                        color: '#FFF'
+                    },
+                    itemHiddenStyle: {
+                        color: '#606063'
+                    },
+                    title: {
+                        style: {
+                            color: '#C0C0C0'
+                        }
+                    }
+                },
+                credits: {
+                    style: {
+                        color: '#666'
+                    }
+                },
+                labels: {
+                    style: {
+                        color: '#707073'
+                    }
+                },
+                drilldown: {
+                    activeAxisLabelStyle: {
+                        color: '#F0F0F3'
+                    },
+                    activeDataLabelStyle: {
+                        color: '#F0F0F3'
+                    }
+                },
+                navigation: {
+                    buttonOptions: {
+                        symbolStroke: '#DDDDDD',
+                        theme: {
+                            fill: '#505053'
+                        }
+                    }
+                },
+                // scroll charts
+                rangeSelector: {
+                    buttonTheme: {
+                        fill: '#505053',
+                        stroke: '#000000',
+                        style: {
+                            color: '#CCC'
+                        },
+                        states: {
+                            hover: {
+                                fill: '#707073',
+                                stroke: '#000000',
+                                style: {
+                                    color: 'white'
+                                }
+                            },
+                            select: {
+                                fill: '#000003',
+                                stroke: '#000000',
+                                style: {
+                                    color: 'white'
+                                }
+                            }
+                        }
+                    },
+                    inputBoxBorderColor: '#505053',
+                    inputStyle: {
+                        backgroundColor: '#333',
+                        color: 'silver'
+                    },
+                    labelStyle: {
+                        color: 'silver'
+                    }
+                },
+                navigator: {
+                    handles: {
+                        backgroundColor: '#666',
+                        borderColor: '#AAA'
+                    },
+                    outlineColor: '#CCC',
+                    maskFill: 'rgba(255,255,255,0.1)',
+                    series: {
+                        color: '#7798BF',
+                        lineColor: '#A6C7ED'
+                    },
+                    xAxis: {
+                        gridLineColor: '#505053'
+                    }
+                },
+                scrollbar: {
+                    barBackgroundColor: '#808083',
+                    barBorderColor: '#808083',
+                    buttonArrowColor: '#CCC',
+                    buttonBackgroundColor: '#606063',
+                    buttonBorderColor: '#606063',
+                    rifleColor: '#FFF',
+                    trackBackgroundColor: '#404043',
+                    trackBorderColor: '#404043'
+                }
+            };
+            // Apply the theme
+            Highcharts.setOptions(Highcharts.theme);
+        </script>
+    </div>
+</body>
+</html>

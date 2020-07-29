@@ -1,0 +1,78 @@
+﻿@model BeatSlayerServer.Models.Dashboard.IndexViewModel
+@{
+    ViewBag.AvatarUrl = "http://www.bsserver.tk/Account/GetAvatarAsPicture?nick=" + Model.Nick;
+    ViewBag.Nick = Model.Nick;
+    ViewBag.Role = Model.Role;
+
+    ViewBag.dsBotClass = !Model.IsDiscordBotAlive ? "error" : Model.IsDiscordBotEnabled ? "enabled" : "disabled";
+    ViewBag.dsBotStatus = !Model.IsDiscordBotAlive ? "Dead" : Model.IsDiscordBotEnabled ? "Alive and working" : "Alive, but disabled";
+
+    ViewBag.vkBotClass = !Model.IsVkBotAlive ? "error" : Model.IsVkBotEnabled ? "enabled" : "disabled";
+    ViewBag.vkBotStatus = !Model.IsVkBotAlive ? "Dead" : Model.IsVkBotEnabled ? "Alive and working" : "Alive, but disabled";
+
+    ViewBag.emailServiceClass = !Model.IsEmailServiceAlive ? "error" : Model.IsEmailServiceEnabled ? "enabled" : "disabled";
+    ViewBag.emailServiceStatus = !Model.IsEmailServiceAlive ? "Dead" : Model.IsEmailServiceEnabled ? "Alive and working" : "Alive, but disabled";
+}
+
+@section Header {
+    <link href="~/css/dashboard/dashboard.css?version=999" rel="stylesheet" />
+}
+
+
+
+
+
+
+<script src="~/js/signalr/signalr.js"></script>
+<script src="~/js/dashboard/logs.js"></script>
+
+<a asp-controller="Home" asp-action="Index">На главную</a>
+<a asp-controller="DashboardLogin" asp-action="Logout">Выйти</a>
+
+<p>Messagers services</p>
+<div id="services-status-container" class="block">
+    <div class="service-status-item @ViewBag.dsBotClass">
+        <img src="~/images/icons/discord.jpg" />
+        <div class="service-status-item-texts">
+            <div>
+                <span class="service-status-item-text-title">Discord</span>
+            </div>
+            <div>
+                <span class="service-status-item-text-status">@ViewBag.dsBotStatus</span>
+            </div>
+        </div>
+    </div>
+    <div class="service-status-item @ViewBag.vkBotClass">
+        <img src="~/images/icons/vk.png" />
+        <div class="service-status-item-texts">
+            <div>
+                <span class="service-status-item-text-title">vk</span>
+            </div>
+            <div>
+                <span class="service-status-item-text-status">@ViewBag.vkBotStatus</span>
+            </div>
+        </div>
+    </div>
+    <div class="service-status-item @ViewBag.emailServiceClass">
+        <img src="~/images/icons/gmail.png" />
+        <div class="service-status-item-texts">
+            <div>
+                <span class="service-status-item-text-title">Email</span>
+            </div>
+            <div>
+                <span class="service-status-item-text-status">@ViewBag.emailServiceStatus</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p id="online">Online @Model.CurrentOnline (Logged in @Model.SessionsCount)</p>
+<div id="logs-container" class="block log-window">
+
+</div>
+
+
+<p id="online">Maps played -1 (Approved -1)</p>
+<div id="maps-container" class="block log-window">
+
+</div>

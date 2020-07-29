@@ -1,0 +1,81 @@
+﻿<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <style>
+        .container {
+            background: rgb(32,32,32);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 16px 30px;
+            width: fit-content;
+        }
+
+        hr {
+            border: none;
+            color: red;
+            background-color: rgb(75,75,75);
+            height: 2px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .window {
+            background: rgb(45,45,45);
+            border-radius: 12px;
+            padding: 10px 20px;
+        }
+
+        .approved {
+            color: rgb(0, 255, 128);
+        }
+
+        .rejected {
+            color: rgb(255, 128, 0);
+        }
+
+        .moderator {
+            color: rgb(0, 128, 255);
+            font-weight: bold;
+        }
+
+        .comment-block {
+            background: rgb(38,38,38);
+            padding: 6px 12px;
+            border-radius: 12px;
+            margin-top: 4px;
+            margin-bottom: 10px;
+        }
+
+        .comment-header {
+            display: block;
+            color: rgb(120,120,120);
+            margin: 10px 0px 10px 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="window">
+            <div style="">
+                <span style="font-size: 26px;">Heyo %nick%! Here is your %action% code</span>
+            </div>
+
+            <hr />
+
+            <div>
+                <span style="margin-left: 4px">This message was sent due to someone requested %action%.</span>
+                <br />
+                <span style="margin-left: 4px">If wasn't you, ignore this message, else, here is your code</span>
+
+                <br />
+                <span class="comment-header">Verification code</span>
+                <div class="comment-block">
+                    <span>%code%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

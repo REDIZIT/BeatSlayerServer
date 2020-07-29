@@ -1,0 +1,35 @@
+﻿:root {
+    --background: rgb(32,32,32);
+    --popup: rgb(45,45,45);
+    --button: rgb(90,90,90);
+    --textbox: rgb(50,50,50);
+    --textbox-border: rgb(75,75,75);
+}
+
+body {
+    background: var(--background);
+    color: white;
+}
+
+.theme-popup {
+    background: var(--popup);
+}
+
+.theme-textbox {
+    background: var(--textbox);
+    border-color: var(--textbox-border);
+}
+/* Change Autocomplete styles in Chrome*/
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-text-fill-color: white;
+    -webkit-box-shadow: 0 0 0px 1000px var(--button) inset;
+    border-color: var(--button) !important;
+}

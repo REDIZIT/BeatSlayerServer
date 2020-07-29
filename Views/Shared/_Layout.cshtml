@@ -1,0 +1,38 @@
+﻿<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>@ViewBag.Title</title>
+    <link href="~/images/bsicon.png" rel="icon" />
+    <link href="~/css/layout/header.css" rel="stylesheet" />
+    @RenderSection("Header")
+</head>
+<body>
+    <div class="header">
+        <ul class="header-logo">
+            <li>
+                <img class="avatar" src="~/images/bsicon.png" />
+            </li>
+            <li>
+                <span>Dashboard</span>
+            </li>
+        </ul>
+        <ul class="header-buttons">
+            <li>
+                <div class="header-nickblock">
+                    <div class="header-nickblock-nick">
+                        <span>@ViewBag.Nick</span>
+                    </div>
+                    <div class="header-nickblock-role">
+                        <span>@ViewBag.Role</span>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <img class="avatar" src="@ViewBag.AvatarUrl" />
+            </li>
+        </ul>
+    </div>
+    <div class="wrapper">
+        @RenderBody()
+    </div>
+</body>
+</html>

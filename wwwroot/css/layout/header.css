@@ -1,0 +1,72 @@
+body {
+    background: rgb(32,32,32);
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0px;
+}
+
+.header {
+    height: 70px;
+    background: rgb(45,45,45);
+    padding: 0px;
+}
+
+
+.header-logo {
+    height: 100%;
+    display: table;
+    float: left;
+    margin: 0px;
+    margin-right: 40px;
+    font-size: 36px;
+}
+    .header-logo li {
+        display: table-cell;
+        vertical-align: middle;
+        padding-left: 40px;
+        height: 100%;
+    }
+.header-buttons {
+    height: 100%;
+    display: table;
+    float: right;
+    margin: 0px;
+    margin-right: 40px;
+}
+    .header-buttons li {
+        display: table-cell;
+        vertical-align: middle;
+        padding-right: 40px;
+        height: 100%;
+    }
+
+
+.header-nickblock {
+    display: block;
+    min-width: 140px;
+}
+.header-nickblock-nick {
+    height: 50%;
+    font-size: 26px;
+/*    background: red;*/
+}
+.header-nickblock-role {
+    height: 50%;
+    font-size: 13px;
+/*    background: blue;*/
+}
+
+
+
+.avatar {
+    border-radius: 50px;
+    height: 54px;
+    width: 54px;
+}
+
+
+
+
+.wrapper {
+    padding: 20px 15% 0px 15%;
+}

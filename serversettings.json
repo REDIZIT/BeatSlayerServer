@@ -1,0 +1,60 @@
+{
+  
+  "TutorialTrackname": "cal3432-Tutorial Map",
+  
+
+
+  "Publishing": {
+    "TempFolder": "Data/Publishing"
+  },
+
+
+  "Moderation": {
+    "MainFolder": "Data/Moderation"
+  },
+
+
+  "Bot": {
+
+    "Vk_UserId": 250490859,
+    "Vk_AcessToken": "18db711daead08af6474e1b286f5c170222d4937f6004dbe14564aea4f5100546445613728b2fe6d860b1",
+
+
+
+    "IsDiscordBotEnabled": true,
+
+    "Discord_Token": "NzI5MDE4MDEwNDI1MDk4MjYw.XwC-SA.T4YX8ATXSgGEDy4xSi0CvJpUIPM",
+    "Discord_ModerationChannelId": 701781287064698961,
+    "Discord_PublicChannelId": 702088186779664425,
+    "Discord_ModerationRoleId": 694150045854990417,
+    "Discord_DeveloperRoleId": 692845394257903637,
+    "Discord_OtherPrefixes": [ "!" ],
+    "Discord_BotChannels": [
+      712668634602012742, // memes
+      712668634602012742, // bots
+      729017598473404499, // bot-tests
+      728997055800016928 // live
+    ],
+    "Discord_SuggestionChannelId": 729017598473404499,
+    "Discord_BugsChannelId": 729017598473404499
+
+  },
+
+  "Email": {
+    "IsEnabled": false,
+    "Login": "redizitgamestudios@gmail.com",
+    "Password": "GR0155YXZ9",
+    "Template_Code": "wwwroot/templates/mail-code-template.html",
+    "Template_Map": "wwwroot/templates/mail-template.html"
+  },
+
+
+  "Heartbeat": {
+    "DataFilePath": "Data/statistics/heartbeat.json",
+    "DataCollectingTime": 300
+  },
+
+  "Chat": {
+    "HistoryFilePath": "Data/ChatHistory.json"
+  }
+}

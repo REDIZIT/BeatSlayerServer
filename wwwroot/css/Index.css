@@ -1,0 +1,39 @@
+* {
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+}
+
+body {
+    background-color: rgb(32,32,32);
+}
+
+.wrap {
+    margin: 20px 200px;
+    padding-bottom: 20px;
+}
+
+.pan {
+    margin-top: 20px;
+    padding: 10px 20px 8px 20px;
+    border-radius: 4px;
+    text-align: center;
+}
+.status-ok {
+    background-color: forestgreen;
+    border-bottom: 3px solid darkgreen;
+}
+.server-prod {
+    background-color: rgb(255, 90, 0);
+    border-bottom: 3px solid rgb(210, 75, 0);
+}
+.server-dev {
+    background-color: rgb(0, 170, 255);
+    border-bottom: 3px solid rgb(0, 135, 200);
+}
+
+
+.chart {
+    margin-top: 20px;
+    border-radius: 4px;
+    text-align: center;
+}
