@@ -95,22 +95,22 @@ namespace BeatSlayerServer.Services.MapsManagement
             return data.approvedMaps.Any(c => c.nick == nick && c.group.author + "-" + c.group.name == trackname);
         }
 
-        public void ClearApprovedMaps()
-        {
-            string trackFolder = TracksFolder;
-            string[] groupsFolders = Directory.GetDirectories(trackFolder);
-            foreach (string groupFolder in groupsFolders)
-            {
-                string[] maps = Directory.GetDirectories(groupFolder);
+        //public void ClearApprovedMaps()
+        //{
+        //    string trackFolder = TracksFolder;
+        //    string[] groupsFolders = Directory.GetDirectories(trackFolder);
+        //    foreach (string groupFolder in groupsFolders)
+        //    {
+        //        string[] maps = Directory.GetDirectories(groupFolder);
 
-                foreach (string map in maps)
-                {
-                    MapInfo mapInfo = ProjectManager.GetMapInfo(map, true);
-                    mapInfo.approved = false;
-                    ProjectManager.SetMapInfo(mapInfo);
-                }
-            }
-        }
+        //        foreach (string map in maps)
+        //        {
+        //            MapInfo mapInfo = ProjectManager.GetMapInfo(map, true);
+        //            mapInfo.approved = false;
+        //            ProjectManager.SetMapInfo(mapInfo);
+        //        }
+        //    }
+        //}
 
 
         public List<ModerateOperation> GetModerationMaps()
@@ -153,17 +153,20 @@ namespace BeatSlayerServer.Services.MapsManagement
             trackname = WebUtility.UrlDecode(trackname);
             nick = WebUtility.UrlDecode(nick);
 
-            Console.WriteLine("Send moderation request for " + trackname + " by " + nick);
-
             string mapModerationFolder = TracksFolder + "/" + trackname + "/" + nick;
-
-            Console.WriteLine("mapModerationFolder: " + mapModerationFolder);
 
             if (!Directory.Exists(mapModerationFolder)) return new OperationResult(OperationResult.State.Fail, "No such published map");
 
-
             string moderationMapFolder = ModerationTrackFolder + "/" + trackname + "/" + nick;
             if (!Directory.Exists(moderationMapFolder)) Directory.CreateDirectory(moderationMapFolder);
+
+
+            ModerateOperation request = LoadModerateOperation(trackname, nick);
+            if (request != null) return new OperationResult(OperationResult.State.Fail, "Your request is in handling, please wait");
+
+            if (settings.Bans.ApproveBans != null && settings.Bans.ApproveBans.Contains(nick)) 
+                return new OperationResult(OperationResult.State.Fail, "You have been banned and can't approve your maps");
+
 
 
             MapInfo info = ProjectManager.GetMapInfo(trackname, nick);
@@ -281,6 +284,8 @@ namespace BeatSlayerServer.Services.MapsManagement
 
         public ModerateOperation LoadModerateOperation(string path)
         {
+            if (!File.Exists(path)) return null;
+
             XmlSerializer xml = new XmlSerializer(typeof(ModerateOperation));
             using (var s = File.OpenRead(path))
             {

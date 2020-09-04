@@ -1,4 +1,5 @@
-﻿using BeatSlayerServer.Models.Database;
+﻿using BeatSlayerServer.Enums.Game;
+using BeatSlayerServer.Models.Database;
 
 namespace BeatSlayerServer.Dtos.Mapping
 {
@@ -10,6 +11,7 @@ namespace BeatSlayerServer.Dtos.Mapping
         public MapData Map { get; set; }
         public string DifficultyName { get; set; }
         public DifficultyData Difficulty { get; set; }
+        public ModEnum Mods { get; set; }
 
         /// <summary>
         /// Player nick, who passed map

@@ -1,5 +1,6 @@
 ﻿using BeatSlayerServer.Enums;
 using BeatSlayerServer.Models.Configuration;
+using BeatSlayerServer.ProjectManagement;
 using BeatSlayerServer.Services;
 using BeatSlayerServer.Services.MapsManagement;
 using BeatSlayerServer.Utils;
@@ -58,6 +59,11 @@ namespace BeatSlayerServer.Controllers.Wrappers
             }
 
             logger.LogInformation("[DOWNLOAD MAP] {trackname} by {nick}", trackname, nick);
+
+            
+            var mapInfo = ProjectManager.GetMapInfo(trackname, nick);
+            mapInfo.downloads++;
+            ProjectManager.SetMapInfo(mapInfo);
 
             byte[] arr = System.IO.File.ReadAllBytes(filepath);
             return File(arr, System.Net.Mime.MediaTypeNames.Application.Octet, trackname + ".bsz");

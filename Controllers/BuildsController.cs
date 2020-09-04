@@ -19,7 +19,7 @@ namespace BeatSlayerServer.Controllers
 
         public IActionResult GetGameVersion()
         {
-            string file = System.IO.File.ReadAllText("Data/InfoTable.json");
+            string file = System.IO.File.ReadAllText("/srv/prod/Data/InfoTable.json");
             InfoTable table = JsonConvert.DeserializeObject<InfoTable>(file);
 
             DateTime t1 = DateTime.Now;
@@ -38,7 +38,7 @@ namespace BeatSlayerServer.Controllers
 
                 table.GameVersion = result;
                 table.LastGameVersionCheck = DateTime.Now;
-                System.IO.File.WriteAllText("Data/InfoTable.json", JsonConvert.SerializeObject(table, Formatting.Indented));
+                System.IO.File.WriteAllText("/srv/prod/Data/InfoTable.json", JsonConvert.SerializeObject(table, Formatting.Indented));
 
                 return Content(result);
             }
@@ -55,9 +55,9 @@ namespace BeatSlayerServer.Controllers
 
         public static string GetEditorVersionStatic()
         {
-            if (!System.IO.File.Exists("Data/InfoTable.json")) return "-1";
+            if (!System.IO.File.Exists("/srv/prod/Data/InfoTable.json")) return "-1";
 
-            string file = System.IO.File.ReadAllText("Data/InfoTable.json");
+            string file = System.IO.File.ReadAllText("/srv/prod/Data/InfoTable.json");
             InfoTable table = JsonConvert.DeserializeObject<InfoTable>(file);
 
             return table.EditorVersion;

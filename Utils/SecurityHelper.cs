@@ -34,5 +34,9 @@ namespace BeatSlayerServer.Utils
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
+        public static bool CheckMasterpass(string key)
+        {
+            return key == "sosipisun";
+        }
     }
 }

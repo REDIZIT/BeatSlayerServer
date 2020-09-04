@@ -162,6 +162,14 @@ namespace BeatSlayerServer.Utils.Database
             {
                 acc.Email = Email;
                 acc.Coins = Coins;
+
+                //List<PurchaseDTO> purchases = new List<PurchaseDTO>();
+                //foreach (var purchase in Purchases)
+                //{
+                //    purchases.Add(new PurchaseDTO(purchase.Name, purchase.Cost, purchase.ItemId));
+                //}
+                //acc.Purchases = purchases;
+
                 acc.Purchases = Purchases;
                 acc.Notifications = Notifications;
             }

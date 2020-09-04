@@ -16,6 +16,7 @@ using BeatSlayerServer.Services;
 using BeatSlayerServer.Models.Database;
 using System.Threading.Tasks;
 using System.Text;
+using BeatSlayerServer.Enums.Game;
 
 namespace BeatSlayerServer.Controllers
 {
@@ -487,6 +488,7 @@ namespace BeatSlayerServer.Controllers
         public double RP { get; set; }
         public double Score { get; set; }
         public Grade Grade { get; set; }
+        public ModEnum Mods { get; set; }
     }
 
 

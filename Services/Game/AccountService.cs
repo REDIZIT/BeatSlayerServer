@@ -67,6 +67,8 @@ namespace BeatSlayerServer.Services.Game
 
                 filesService.CreateDataFolder(nick);
 
+                logger.LogInformation("[{action}] {nick}", "SIGNUP", nick);
+
                 return new OperationMessage(OperationType.Success, "");
             }
         }
@@ -368,7 +370,8 @@ namespace BeatSlayerServer.Services.Game
                         MissedCount = replay.Missed,
                         Score = replay.Score,
                         RP = replay.RP,
-                        Grade = replay.Grade
+                        Grade = replay.Grade,
+                        //Mods = 
                     });
                 }
 

@@ -14,7 +14,7 @@ namespace BeatSlayerServer.Utils
         public DbSet<ReplayInfo> Replays { get; set; }
         public DbSet<CodeVerificationRequest> VerificationRequests { get; set; }
         public DbSet<NotificationInfo> Notifications { get; set; }
-        public DbSet<PurchaseModel> Purchases { get; set; }
+        //public DbSet<PurchaseModel> Purchases { get; set; }
 
 
         private readonly ServerSettings settings;

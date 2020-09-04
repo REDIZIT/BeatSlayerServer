@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 using BeatSlayerServer.Models.Database.Maps;
 using Microsoft.AspNetCore.Authorization;
 using BeatSlayerServer.Controllers;
+using BeatSlayerServer.Utils.Shop;
 
 namespace BeatSlayerServer.Core
 {
@@ -31,6 +32,7 @@ namespace BeatSlayerServer.Core
         private readonly RankingService rankingService;
         private readonly MapsService mapsService;
         private readonly AccountService accountService;
+        private readonly ShopService shopService;
         private readonly ILogger<UpgraderController> logger;
 
         private readonly ServerSettings settings;
@@ -41,7 +43,8 @@ namespace BeatSlayerServer.Core
         private readonly SimulationService simulationService;
 
         public UpgraderController(SettingsWrapper wrapper, ILogger<UpgraderController> logger, IHostEnvironment env, MyDbContext ctx, ModerationService moderationService, 
-            RankingService rankingService, MapsService mapsService, DiscordBotWrapper discordBotService, SimulationService simulationService, AccountService accountService)
+            RankingService rankingService, MapsService mapsService, DiscordBotWrapper discordBotService, SimulationService simulationService, AccountService accountService, 
+            ShopService shopService)
         {
             this.logger = logger;
             this.ctx = ctx;
@@ -54,12 +57,13 @@ namespace BeatSlayerServer.Core
 
             this.discordBotService = discordBotService;
             this.simulationService = simulationService;
+
+            this.shopService = shopService;
         }
 
 
         public IActionResult GiveCoins(string nick, int count, string masterkey)
         {
-            if (!env.IsDevelopment()) return Unauthorized();
             if (masterkey != "sosipisun") return Content("Wrong masterkey");
 
             AccountDb acc = ctx.Players.FirstOrDefault(c => c.Nick == nick);
@@ -70,11 +74,71 @@ namespace BeatSlayerServer.Core
         }
 
 
+        public string GetGroupsByDifficulty(int stars)
+        {
+            string[] tracksFolders = Directory.GetDirectories(settings.TracksFolder).OrderByDescending(c => new DirectoryInfo(c).CreationTime).ToArray();
+            List<GroupInfoExtended> groupInfos = new List<GroupInfoExtended>();
+
+            for (int i = 0; i < tracksFolders.Length; i++)
+            {
+                string trackname = new DirectoryInfo(tracksFolders[i]).Name;
+
+                string[] mapsFolders = Directory.GetDirectories(tracksFolders[i]);
+
+                GroupInfoExtended groupInfo = new GroupInfoExtended()
+                {
+                    author = trackname.Split('-')[0],
+                    name = trackname.Split('-')[1],
+                    mapsCount = mapsFolders.Length
+                };
+
+
+                groupInfo.nicks = new List<string>();
+                foreach (string mapFolder in mapsFolders)
+                {
+                    try
+                    {
+                        MapInfo info = ProjectManager.GetMapInfo(mapFolder, true);
+
+                        if(info.difficulties.Any(c => c.stars == stars))
+                        {
+                            groupInfos.Add(groupInfo);
+                        }
+
+                        //groupInfo.allDownloads += info.downloads;
+                        //groupInfo.allPlays += info.playCount;
+                        //groupInfo.allLikes += info.likes;
+                        //groupInfo.allDislikes += info.dislikes;
+
+                        //if (info.publishTime > groupInfo.updateTime) groupInfo.updateTime = info.publishTime;
+
+                        //groupInfo.nicks.Add(new DirectoryInfo(mapFolder).Name);
+                    }
+                    catch (Exception err)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("GetGroupExtended: " + mapFolder);
+                        Console.WriteLine("    " + err);
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                }
+            }
+
+            return JsonConvert.SerializeObject(groupInfos, Formatting.Indented);
+        }
+
+
+
+
+
+
         /// <summary>
         /// Clear all purchases with upgrading by client side
         /// </summary>
         public string DropPurchases(string nick, string masterpass)
         {
+            logger.LogInformation("DropPurchases for {nick} with masterpass = {masterpass}", nick, masterpass == "sosipisun");
+
             if (masterpass != "sosipisun") return "Not master";
             if (!accountService.TryFindAccount(nick, out AccountDb acc)) return "No such player";
 
@@ -88,6 +152,8 @@ namespace BeatSlayerServer.Core
         /// </summary>
         public string ResetPurchases(string nick, string masterpass)
         {
+            logger.LogInformation("ResetPurchases for {nick} with masterpass = {masterpass}", nick, masterpass == "sosipisun");
+
             if (masterpass != "sosipisun") return "Not master";
             if (!accountService.TryFindAccount(nick, out AccountDb acc)) return "No such player";
 
@@ -97,80 +163,28 @@ namespace BeatSlayerServer.Core
             return "Done";
         }
 
-
-        public string UpgradeStatuses()
+        public string ViewPurchases(string nick, string masterpass)
         {
+            if (masterpass != "sosipisun") return "Not master";
+            if (!accountService.TryFindAccount(nick, out AccountDb acc)) return "No such player";
+
+
             StringBuilder b = new StringBuilder();
-            Stopwatch w = Stopwatch.StartNew();
 
-            var tracknames = ctx.Groups.Select(c => 
-                new { 
-                    trackname = c.Author.ToString() + "-" + c.Name.ToString(), 
-                    mappers = c.Maps.Select(m => new
-                    {
-                        nick = m.Nick,
-                        id = m.Id
-                    }),
-                    groupId = c.Id
-                }).ToList();
+            if (acc.Purchases == null) b.AppendLine("<null>");
+            if (acc.Purchases.Count == 0) b.AppendLine("<empty>");
 
-
-            foreach (var map in tracknames)
+            foreach (var purchase in acc.Purchases)
             {
-                foreach (var mapper in map.mappers)
-                {
-                    UpgradeStatus(map.trackname, mapper.nick, map.groupId, mapper.id);
-                }
+                b.AppendLine($"{purchase.Name} ({purchase.ItemId}) - {purchase.Cost}");
             }
-
-            ctx.SaveChanges();
-
-            w.Stop();
-
-            Console.WriteLine("\n\nDone in " + w.Elapsed.TotalSeconds + " seconds");
-
-            b.AppendLine("\n\nDone in " + w.Elapsed.TotalSeconds + " seconds");
 
             return b.ToString();
         }
 
 
-        public string UpgradeStatus(string trackname, string mapper, int groupId, int mapId)
-        {
-            Console.WriteLine($"Upgrade status {mapId}({groupId})" + trackname);
 
-            string author = trackname.Split('-')[0];
-            string name = trackname.Split('-')[1];
 
-            var group = ctx.Groups.FirstOrDefault(c => c.Author == author && c.Name == name);
-            var map = group.Maps.FirstOrDefault(c => c.Nick == mapper);
-
-            bool isApproved = moderationService.IsMapApproved(trackname, mapper);
-
-            
-
-            if(map != null)
-            {
-                if(map.PublishStatus == MapPublishStatus.NotSet)
-                {
-                    map.PublishStatus = isApproved ? MapPublishStatus.Approved : MapPublishStatus.Published;
-                    Console.WriteLine("|--  " + (isApproved ? "Approved" : "Published"));
-                    Console.WriteLine($"|--  [CHANGED TO {map.PublishStatus.ToString()}]");
-                }
-            }
-            else
-            {
-                Console.WriteLine(trackname + " by " + mapper);
-                Console.WriteLine("Is group null? " + (group == null));
-                Console.WriteLine("Is group.maps null? " + (group.Maps == null));
-                Console.WriteLine("Is group.maps empty? " + (group.Maps.Count == 0));
-                Console.WriteLine("List of mappers: " + string.Join(",", group.Maps.Select(c => c.Nick)));
-
-                throw new Exception("Map is null");
-            }
-
-            return isApproved ? "Approved" : "Published";
-        }
 
 
         public string UpgradeDifficultiesForAll()
@@ -338,6 +352,48 @@ namespace BeatSlayerServer.Core
 
             return "Done";
         }
+
+        //[Authorize(Roles = "Developer")]
+        public string SetStars(string trackname, string mapper, int stars)
+        {
+            var mapInfo = ProjectManager.GetMapInfo(trackname, mapper);
+            if (mapInfo == null) return "No such MapInfo";
+            if (mapInfo.difficulties.Count > 1) return "Too many difficulties";
+
+            mapInfo.difficultyStars = stars;
+            mapInfo.difficulties[0].stars = stars;
+
+            string author = trackname.Split('-')[0];
+            string name = trackname.Split('-')[1];
+
+            var group = ctx.Groups.FirstOrDefault(c => c.Author == author && c.Name == name);
+            if (group == null) return "No such group";
+
+            var map = group.Maps.FirstOrDefault(c => c.Nick == mapper);
+            if (map == null) return "No such map in db";
+
+            var diff = map.Difficulties.First();
+            if (diff == null) return "No such difficulty";
+
+            diff.Stars = stars;
+
+            ProjectManager.SetMapInfo(mapInfo);
+            ctx.SaveChanges();
+
+            return "Done!";
+        }
+
+
+
+        public string GiveItem(string nick, int itemId, string masterpass)
+        {
+            if (!accountService.TryFindAccount(nick, out AccountDb acc)) return "No such account";
+
+            return shopService.GiveItem(acc, itemId, masterpass) ? "Success" : "Failed";
+        }
+
+
+
 
         /*public string UpgradeProject()
         {

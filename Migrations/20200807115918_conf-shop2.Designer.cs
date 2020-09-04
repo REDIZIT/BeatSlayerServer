@@ -3,14 +3,16 @@ using System;
 using BeatSlayerServer.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BeatSlayerServer.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200807115918_conf-shop2")]
+    partial class confshop2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,31 +111,6 @@ namespace BeatSlayerServer.Migrations
                     b.HasIndex("GroupId");
 
                     b.ToTable("MapInfo");
-                });
-
-            modelBuilder.Entity("BeatSlayerServer.Models.Database.PurchaseModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int?>("AccountId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Cost")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("PurchaseModel");
                 });
 
             modelBuilder.Entity("BeatSlayerServer.Models.Database.ReplayInfo", b =>
@@ -329,13 +306,6 @@ namespace BeatSlayerServer.Migrations
                     b.HasOne("BeatSlayerServer.Utils.Database.GroupInfo", "Group")
                         .WithMany("Maps")
                         .HasForeignKey("GroupId");
-                });
-
-            modelBuilder.Entity("BeatSlayerServer.Models.Database.PurchaseModel", b =>
-                {
-                    b.HasOne("BeatSlayerServer.Utils.Database.Account", null)
-                        .WithMany("Purchases")
-                        .HasForeignKey("AccountId");
                 });
 
             modelBuilder.Entity("BeatSlayerServer.Models.Database.ReplayInfo", b =>

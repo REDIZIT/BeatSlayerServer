@@ -104,7 +104,7 @@ namespace InEditor.Analyze
             
             float blocksCount = diff.beatCubeList.Count;
 
-            result.MaxRP = ranking.GetRP(1, diff.stars, blocksCount, 0, diff.speed, 1);
+            result.MaxRP = ranking.GetRP(1, diff.stars, blocksCount, 0, diff.speed, new List<BeatSlayerServer.Models.Configuration.Modules.ModSO>());
             result.ScorePerBlock = result.MaxScore / blocksCount;
             result.RPPerBlock = result.MaxRP / blocksCount;
 

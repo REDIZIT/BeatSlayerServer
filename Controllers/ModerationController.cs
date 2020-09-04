@@ -84,13 +84,13 @@ namespace BeatSlayerServer.Controllers.Wrappers
             string json = JsonConvert.SerializeObject(groupInfos);
             return json;
         }
-        public IActionResult ClearMaps(string masterkey)
-        {
-            if (masterkey != "sosipisun") return Content("Invalid masterkey");
+        //public IActionResult ClearMaps(string masterkey)
+        //{
+        //    if (masterkey != "sosipisun") return Content("Invalid masterkey");
 
-            moderationService.ClearApprovedMaps();
-            return Content("Cleared");
-        }
+        //    moderationService.ClearApprovedMaps();
+        //    return Content("Cleared");
+        //}
         public IActionResult ReloadData()
         {
             moderationService.LoadData();

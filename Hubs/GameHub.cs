@@ -13,10 +13,10 @@ using AccountData = BeatSlayerServer.Utils.Database.AccountData;
 using BeatSlayerServer.Dtos;
 using BeatSlayerServer.Dtos.Mapping;
 using BeatSlayerServer.Controllers;
-using BeatSlayerServer.Hubs;
 using BeatSlayerServer.Services.Dashboard;
 using BeatSlayerServer.Models.Database;
 using BeatSlayerServer.Dtos.Tutorial;
+using BeatSlayerServer.Models.Configuration;
 
 namespace BeatSlayerServer.Utils
 {
@@ -33,13 +33,16 @@ namespace BeatSlayerServer.Utils
         private readonly ShopService shopService;
 
         private readonly DashboardService dashboardService;
+        private readonly ServerSettings settings;
 
-        public GameHub(MyDbContext context, ILogger<GameHub> logger, ConnectionService connectionService, AccountService accountService,
+        public GameHub(MyDbContext context, ILogger<GameHub> logger, SettingsWrapper wrapper, ConnectionService connectionService, AccountService accountService,
             ChatService chatService, RankingService rankingService, NotificationService notificationService, ShopService shopService,
             DashboardService dashboardService)
         {
             this.context = context;
             this.logger = logger;
+            settings = wrapper.settings;
+
             this.accountService = accountService;
             this.connectionService = connectionService;
             this.chatService = chatService;
@@ -174,19 +177,6 @@ namespace BeatSlayerServer.Utils
             Clients.Caller.SendAsync("Accounts_OnSearch", accs);
         }
 
-
-        public void Accounts_SendReplay(string json)
-        {
-            Console.WriteLine("!!!!!!!! LEGACY WAY !!!!!!!!!!!");
-
-            ReplaySendData data = rankingService.AddReplay(json);
-
-
-            rankingService.CalculateLeaderboardPlaces();
-
-
-            Clients.Caller.SendAsync("Accounts_OnSendReplay", data);
-        }
         public async Task<ReplaySendData> SendReplay(ReplayData replay)
         {
             ReplaySendData data = await rankingService.AddReplay(replay);
@@ -233,7 +223,7 @@ namespace BeatSlayerServer.Utils
         #endregion
 
 
-        #region -- Friends --
+        #region Friends
 
         public void Friends_InviteFriend(string addToNick, string nick)
         {
@@ -310,27 +300,25 @@ namespace BeatSlayerServer.Utils
             logger.LogInformation("[{action}] {ip} {@result} {allmissed} {allsliced} {accuracy}", "TUTORIAL", ip, result, result.AllMissed, result.AllSliced, result.Accuracy * 100);
         }
 
+        public KeyValuePair<string, string> Tutorial_GetTutorialMap()
+        {
+            return settings.Tutorial.TutorialMap;
+        }
+        public Dictionary<string, string> Tutorial_EasyMaps()
+        {
+            return settings.Tutorial.EasyMaps;
+        }
+        public Dictionary<string, string> Tutorial_HardMaps()
+        {
+            return settings.Tutorial.HardMaps;
+        }
+
         #endregion
 
 
 
         private string GetIp(HttpContext httpContext)
         {
-            //string result = "";
-            //if (remoteIpAddress != null)
-            //{
-            //    // If we got an IPV6 address, then we need to ask the network for the IPV4 address 
-            //    // This usually only happens when the browser is on the same machine as the server.
-            //    if (remoteIpAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-            //    {
-            //        remoteIpAddress = System.Net.Dns.GetHostEntry(remoteIpAddress).AddressList
-            //.First(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-            //    }
-            //    result = remoteIpAddress.ToString();
-            //}
-
-            //return result;
-
             string remoteIpAddress = httpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
             bool containsXForwarded = httpContext.Request.Headers.ContainsKey("X-Forwarded-For");
             if (containsXForwarded)

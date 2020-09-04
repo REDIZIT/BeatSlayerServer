@@ -3,14 +3,16 @@ using System;
 using BeatSlayerServer.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BeatSlayerServer.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200807113728_rollback")]
+    partial class rollback
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,9 +125,6 @@ namespace BeatSlayerServer.Migrations
                     b.Property<int>("Cost")
                         .HasColumnType("int");
 
-                    b.Property<int>("ItemId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -133,7 +132,7 @@ namespace BeatSlayerServer.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("PurchaseModel");
+                    b.ToTable("Purchases");
                 });
 
             modelBuilder.Entity("BeatSlayerServer.Models.Database.ReplayInfo", b =>
@@ -334,7 +333,7 @@ namespace BeatSlayerServer.Migrations
             modelBuilder.Entity("BeatSlayerServer.Models.Database.PurchaseModel", b =>
                 {
                     b.HasOne("BeatSlayerServer.Utils.Database.Account", null)
-                        .WithMany("Purchases")
+                        .WithMany("Purchase")
                         .HasForeignKey("AccountId");
                 });
 

@@ -1,7 +1,23 @@
 {
-  
+
   "TutorialTrackname": "cal3432-Tutorial Map",
-  
+
+
+  "Tutorial": {
+    //"TutorialMap": {
+    //  "Beat Slayer-Tutorial": ""
+    //}
+    "EasyMaps": {
+      "THR3-Begin Again (Better Version)": "thatxgamer",
+      "Vicetone  Tony IGY-Astronomia  Coffin Dance": "Крит",
+      "The Fuhrer-Firing Order II": "XeroAzurus",
+      "Coolio-Gangsta's Paradise": "Noobslayerplay",
+      "Lucha & R3vxs-Anubis": "REDIZIT"
+    },
+    "HardMaps": {
+      "RIOT-Overkill": "REDIZIT"
+    }
+  },
 
 
   "Publishing": {
@@ -56,5 +72,125 @@
 
   "Chat": {
     "HistoryFilePath": "Data/ChatHistory.json"
+  },
+
+  "Mods": {
+    "Mods": [
+      {
+        "modEnum": "NoFail",
+        "scoreMultiplier": 0.5,
+        "rpMultiplier": 0
+      },
+      {
+        "modEnum": "Easy",
+        "scoreMultiplier": 0.7,
+        "rpMultiplier": 0.7
+      },
+      {
+        "modEnum": "Hard",
+        "scoreMultiplier": 1.08,
+        "rpMultiplier": 1.06
+      },
+      {
+        "modEnum": "DoubleTime",
+        "scoreMultiplier": 1.14,
+        "rpMultiplier": 1.09
+      },
+      {
+        "modEnum": "OneTry",
+        "scoreMultiplier": 1.02,
+        "rpMultiplier": 1
+      },
+      {
+        "modEnum": "NightCore",
+        "scoreMultiplier": 1.05,
+        "rpMultiplier": 1.02
+      },
+      {
+        "modEnum": "NoBombs",
+        "scoreMultiplier": 0.8,
+        "rpMultiplier": 1
+      }
+    ]
+  },
+
+  "Shop": {
+    "Purchases": [
+      {
+        "ItemId": 0,
+        "Name": "Standard saber",
+        "Cost": 0
+      },
+      {
+        "ItemId": 1,
+        "Name": "Jedi Sword",
+        "Cost": 2000
+      },
+      {
+        "ItemId": 2,
+        "Name": "Ear Stick",
+        "Cost": 6000
+      },
+      {
+        "ItemId": 3,
+        "Name": "Sword For Boyars",
+        "Cost": 180000
+      },
+      {
+        "ItemId": 4,
+        "Name": "Katana",
+        "Cost": 10000
+      },
+      {
+        "ItemId": 5,
+        "Name": "Middleage Sword",
+        "Cost": 18000
+      },
+      {
+        "ItemId": 6,
+        "Name": "Oh My God",
+        "Cost": 40000
+      },
+      {
+        "ItemId": 7,
+        "Name": "Standard Tail",
+        "Cost": 0
+      },
+      {
+        "ItemId": 8,
+        "Name": "Soul Tail",
+        "Cost": 200000
+      },
+      {
+        "ItemId": 9,
+        "Name": "Pixeled Tail",
+        "Cost": 15999
+      },
+      {
+        "ItemId": 10,
+        "Name": "Standard Location",
+        "Cost": 0
+      },
+      {
+        "ItemId": 11,
+        "Name": "Rounded Lines Location",
+        "Cost": 4000
+      },
+      {
+        "ItemId": 12,
+        "Name": "Triangle Location",
+        "Cost": 6000
+      },
+      {
+        "ItemId": 13,
+        "Name": "Triangle Lined Location",
+        "Cost": 15000
+      },
+      {
+        "ItemId": 14,
+        "Name": "Piston Location",
+        "Cost": 30000
+      }
+    ]
   }
 }

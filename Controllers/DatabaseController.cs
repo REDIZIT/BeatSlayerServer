@@ -62,6 +62,11 @@ namespace BeatSlayerServer.Controllers.Wrappers
             List<GroupInfoExtended> ls = mapsService.GetGroupsExtended();
             return Content(JsonConvert.SerializeObject(ls, intended ? Formatting.Indented : Formatting.None));
         }
+        public IActionResult GetGroupsExtendedFromDb()
+        {
+            List<GroupInfoExtended> ls = mapsService.GetGroupsExtended(true);
+            return Content(JsonConvert.SerializeObject(ls, Formatting.Indented));
+        }
         public IActionResult GetTutorialGroup()
         {
             GroupInfoExtended group = mapsService.GetGroup(settings.TutorialTrackname);

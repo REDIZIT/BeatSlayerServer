@@ -15,6 +15,9 @@ namespace BeatSlayerServer.Models.Configuration
 
         public string ConnectionString { get; set; }
 
+
+
+        public TutorialSettings Tutorial { get; set; }
         public PublishingSettings Publishing { get; set; }
         public ModerationSettings Moderation { get; set; }
 
@@ -23,5 +26,9 @@ namespace BeatSlayerServer.Models.Configuration
 
         public HeartbeatSettings Heartbeat { get; set; }
         public ChatSettings Chat { get; set; }
+
+        public ModsSettings Mods { get; set; }
+        public PurchasesSettings Shop { get; set; }
+        public BanSettings Bans { get; set; }
     }
 }

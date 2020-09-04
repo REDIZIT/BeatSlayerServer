@@ -8,6 +8,8 @@ using System;
 using BeatSlayerServer.Enums;
 using System.Threading.Tasks;
 using MapInfo = BeatSlayerServer.ProjectManagement.MapInfo;
+using System.Diagnostics;
+using System.Text;
 
 namespace BeatSlayerServer.Services.MapsManagement
 {
@@ -104,6 +106,48 @@ namespace BeatSlayerServer.Services.MapsManagement
 
             return groupInfos;
         }
+
+        public List<GroupInfoExtended> GetGroupsExtended(bool fromDb)
+        {
+            if (!fromDb) return GetGroupsExtended();
+
+
+            List<GroupInfoExtended> result = new List<GroupInfoExtended>();
+
+            Stopwatch w = Stopwatch.StartNew();
+
+
+            var groups = ctx.Groups.Select(g => new
+            {
+                author = g.Author,
+                name = g.Name,
+                maps = g.Maps.Select(m => new
+                {
+                    difficulties = m.Difficulties.Select(d => new
+                    {
+                        name = d.Name
+                    })
+                })
+            });
+
+            int count = groups.Count();
+            //int allLikes = groups.Sum(c => c.allLikes);
+
+            foreach (var item in groups)
+            {
+                Console.WriteLine(item.maps.FirstOrDefault()?.difficulties?.Count());
+            }
+
+
+            w.Stop();
+            float elapsedTime = w.ElapsedMilliseconds;
+
+            return result;
+        }
+
+
+
+
         public async Task<string> GetRandomGroup()
         {
             return await Task.Run(() =>
@@ -173,89 +217,10 @@ namespace BeatSlayerServer.Services.MapsManagement
 
 
             return new OperationMessage(OperationType.Fail, "Not implemented");
-            //    //Account acc = AccountController.data.accounts.Find(c => c.nick == nick);
-            //    /*var acc = Core.ctx.Players.FirstOrDefault(c => c.Nick == nick);
-            //    if (acc == null) return new OperationResult(OperationResult.State.Fail, "No such account");
-            //    if (masterkey != "sosipisun" && acc.Password != SecurityHelper.GetMd5Hash(password)) return new OperationResult(OperationResult.State.Fail, "Wrong password");
-
-
-            //    string groupFolder = Payload.TracksFolder + "/" + trackname;
-            //    string mapFolder = groupFolder + "/" + nick;
-
-            //    GroupInfo gInfo = ProjectManager.GetGroupInfo(groupFolder, true);
-            //    MapInfo info = ProjectManager.GetMapInfo(mapFolder, true);
-
-
-
-            //    if(info.approved)
-            //    {
-            //        ModerationAPI.data.approvedMaps.RemoveAll(c => c.group.author + "-" + c.group.name == trackname && c.nick == nick);
-            //        ModerationAPI.SaveData();
-            //    }
-
-            //    Directory.Delete(mapFolder, true);
-
-            //    gInfo.mapsCount--;
-            //    if(gInfo.mapsCount == 0)
-            //    {
-            //        Directory.Delete(groupFolder, true);
-            //    }
-            //    else
-            //    {
-            //        ProjectManager.SetGroupInfo(gInfo);
-            //    }
-
-
-            //    return new OperationResult(OperationResult.State.Success);*/
         }
         public OperationMessage RenameProject(string trackname, string nick, string newtrackname, string masterkey = "")
         {
             return new OperationMessage(OperationType.Fail, "Not implemented");
-            //    /*if (masterkey != "sosipisun") return new OperationResult(OperationResult.State.Fail, "Wrong password");
-
-            //    string groupFolder = Payload.TracksFolder + "/" + trackname;
-            //    string mapFolder = groupFolder + "/" + nick;
-
-            //    GroupInfo gInfo = ProjectManager.GetGroupInfo(groupFolder, true);
-            //    MapInfo info = ProjectManager.GetMapInfo(mapFolder, true);
-
-            //    string newauthor = newtrackname.Split('-')[0];
-            //    string newname = newtrackname.Split('-')[1];
-
-
-
-            //    List<Account> accountsToChange = AccountController.data.accounts.Where(c =>
-            //        c.playedMaps.Any(c => c.author + c.name == gInfo.author + gInfo.name) ||
-            //        c.replays.Any(c => c.author + c.name == gInfo.author + gInfo.name) ||
-            //        c.records.Any(c => c.author + c.name == gInfo.author + gInfo.name)).ToList();
-
-
-            //    foreach (var acc in accountsToChange)
-            //    {
-            //        foreach (var map in acc.playedMaps.Where(c => c.author + c.name == gInfo.author + gInfo.name))
-            //        {
-            //            map.author = newauthor;
-            //            map.name = newauthor;
-            //        }
-            //        foreach (var map in acc.replays.Where(c => c.author + c.name == gInfo.author + gInfo.name))
-            //        {
-            //            map.author = newauthor;
-            //            map.name = newauthor;
-            //        }
-            //        foreach (var map in acc.records.Where(c => c.author + c.name == gInfo.author + gInfo.name))
-            //        {
-            //            map.author = newauthor;
-            //            map.name = newauthor;
-            //        }
-            //    }
-            //    //AccountController.SaveAccounts();
-
-
-            //    gInfo.author = newauthor;
-            //    gInfo.name = newname;
-            //    ProjectManager.SetGroupInfo(gInfo);
-
-            //    return new OperationResult(OperationResult.State.Success);*/
         }
 
         public OperationMessage RemoveMapFromApproved(string trackname, string nick, string masterkey)

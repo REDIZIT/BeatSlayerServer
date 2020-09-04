@@ -13,6 +13,10 @@ using System.Reflection;
 using System.Threading.Tasks;
 using BeatSlayerServer.Services.Dashboard;
 using BeatSlayerServer.Models.Database;
+using BeatSlayerServer.Enums.Game;
+using System.Collections.Generic;
+using BeatSlayerServer.Models.Configuration.Modules;
+using BeatSlayerServer.Models.Configuration;
 
 namespace BeatSlayerServer.Services.Game
 {
@@ -29,11 +33,14 @@ namespace BeatSlayerServer.Services.Game
         private readonly AccountService accountService;
         private readonly DashboardService dashboardService;
 
-        public RankingService(MyDbContext ctx, ILogger<RankingService> logger, MapsService mapsService,
+        private readonly ServerSettings settings;
+
+        public RankingService(MyDbContext ctx, ILogger<RankingService> logger, SettingsWrapper wrapper, MapsService mapsService,
             ModerationService moderationService, AccountService accountService, DashboardService dashboardService)
         {
             this.ctx = ctx;
             this.logger = logger;
+            settings = wrapper.settings;
 
             this.mapsService = mapsService;
             this.moderationService = moderationService;
@@ -43,45 +50,29 @@ namespace BeatSlayerServer.Services.Game
 
 
         /// <summary>
-        /// Convert to <see cref="Replay"/>, validate and invoke <see cref="AddReplay(Replay)"/>
-        /// </summary>
-        [Obsolete("Last usage 1.59.1. Use AddReplay(ReplayData)")]
-        public ReplaySendData AddReplay(string json)
-        {
-            // Received from player
-            Replay replay = JsonConvert.DeserializeObject<Replay>(json);
-
-            float RP = GetRP(replay.Accuracy, replay.difficulty, replay.sliced, replay.missed, replay.cubesSpeed, replay.musicSpeed);
-
-            replay.RP = RP;
-
-            return AddReplay(replay);
-        }
-        /// <summary>
         /// Invoked on map passed (Only approved maps)
         /// </summary>
         public async Task<ReplaySendData> AddReplay(ReplayData replay)
         {
             if (!mapsService.TryGetGroupInfo(replay.Map.Group.Author, replay.Map.Group.Name, out GroupInfo group))
             {
-                Console.WriteLine("Failed due to no group found " + replay.Map.Trackname);
+                logger.LogError("Failed to find group " + (replay.Map.Group.Author + "-" + replay.Map.Group.Name));
                 return null;
             }
             if (!mapsService.TryGetMapInfo(group, replay.Map.Nick, out MapInfo map))
             {
-                Console.WriteLine("Failed due to no map found " + replay.Map.Nick);
+                logger.LogError("Failed to find map " + (replay.Map.Group.Author + "-" + replay.Map.Group.Name + " by " + replay.Map.Nick));
                 return null;
             }
-
             if (!accountService.TryFindAccount(replay.Nick, out Account acc))
             {
-                Console.WriteLine("Failed due to no player found " + replay.Nick);
+                logger.LogError("Failed to find account " + replay.Nick);
                 return null;
             }
 
-            Console.WriteLine("[ENTRY] " + JsonConvert.SerializeObject(replay));
 
-
+            List<ModSO> selectedMods = settings.Mods.Mods.Where(c => replay.Mods.HasFlag(c.ModEnum)).ToList();
+            logger.LogInformation("[DEBUG] Selected modsSo are {selectedModsJson}", JsonConvert.SerializeObject(selectedMods, Formatting.Indented));
 
             ReplayInfo info = new ReplayInfo()
             {
@@ -90,13 +81,11 @@ namespace BeatSlayerServer.Services.Game
                 DifficultyName = replay.Difficulty.Name,
                 DifficultyStars = replay.Difficulty.Stars,
                 Grade = GetGrade(replay.Accuracy, replay.Missed),
-                RP = GetRP(replay.Accuracy, replay.Difficulty.Stars, replay.CubesSliced, replay.Missed, replay.Difficulty.CubesSpeed, 1),
+                RP = GetRP(replay.Accuracy, replay.Difficulty.Stars, replay.CubesSliced, replay.Missed, replay.Difficulty.CubesSpeed, selectedMods),
                 Score = replay.Score,
                 CubesSliced = replay.CubesSliced,
                 Missed = replay.Missed
             };
-
-            Console.WriteLine("[ENTRY RP] RP " + info.RP);
 
             int coins = GetCoins(replay.Score, replay.Accuracy, replay.CubesSliced);
 
@@ -104,11 +93,11 @@ namespace BeatSlayerServer.Services.Game
 
 
             // If map isn't approve return only coins and save coins in db
-            if (!moderationService.IsMapApproved(replay.Map.Trackname, replay.Map.Nick))
+            if (!CanGetRP(replay))
             {
-                Console.WriteLine("Map isn't approved " + replay.Map.Trackname + " by " + replay.Map.Nick);
-
                 dashboardService.OnMapPlayed(replay.Map.Trackname, replay.Map.Nick, replay.Nick, replay.Score, 0, replay.Accuracy);
+
+                logger.LogInformation("[PLAYED] NON-RP {@replay}", replay);
 
                 await ctx.SaveChangesAsync();
 
@@ -124,8 +113,8 @@ namespace BeatSlayerServer.Services.Game
 
 
 
-            ReplayInfo bestReplay = accountService.GetBestReplay(acc.Nick, replay.Map.Trackname, replay.Map.Nick);
-            bool isNewRecord = bestReplay == null || replay.RP > bestReplay.RP;
+            //ReplayInfo bestReplay = accountService.GetBestReplay(acc.Nick, replay.Map.Trackname, replay.Map.Nick);
+            //bool isNewRecord = bestReplay == null || replay.RP > bestReplay.RP;
 
 
             map.Replays.Add(info); /// Add replay to map's replays
@@ -140,6 +129,8 @@ namespace BeatSlayerServer.Services.Game
 
 
             dashboardService.OnMapPlayed(replay.Map.Trackname, replay.Map.Nick, replay.Nick, replay.Score, (float)info.RP, replay.Accuracy);
+
+            logger.LogInformation("[PLAYED] RP {@replay}", replay);
 
             await ctx.SaveChangesAsync();
 
@@ -212,12 +203,18 @@ namespace BeatSlayerServer.Services.Game
 
 
 
-        public float GetRP(float accuracy, float difficulty, float cubesCount, int missed, float cubesSpeed, float musicSpeed)
+        public float GetRP(float accuracy, float difficulty, float cubesCount, int missed, float cubesSpeed, List<ModSO> mods)
         {
-            float modsMultiplier = (cubesSpeed * 1 + musicSpeed * 1) / 2f;
+            float cubesSpeedMultiplier = (cubesSpeed + 1) / 2f;
+            float modsMultiplier = 1;
+            if(mods != null && mods.Count > 0)
+            {
+                modsMultiplier = mods.Select(c => c.RpMultiplier).Aggregate((mult, e) => mult * e);
+            }
+            logger.LogInformation("RP multiplier = {multiplier}", modsMultiplier);
 
             missed += 1;
-            return (accuracy * difficulty * cubesCount * modsMultiplier) / missed;
+            return (accuracy * difficulty * cubesCount * modsMultiplier * cubesSpeedMultiplier) / missed;
         }
         public int GetCoins(float score, float accuracy, int sliced)
         {
@@ -341,17 +338,14 @@ namespace BeatSlayerServer.Services.Game
 
 
 
-
-        /// <summary>
-        /// Simple check on cheats
-        /// </summary>
-        /// <returns>False if cheated, True if no cheats</returns>
-        private bool ValidateReplay(Replay replay)
+        private bool CanGetRP(ReplayData replay)
         {
-            if (replay.Accuracy < 0 || replay.Accuracy > 1) return false;
-            //if (replay.musicSpeed < 0.5f || replay.musicSpeed > 1.5f) return false;
-            if (replay.score > 20000) return false;
-            if (replay.sliced > 1500) return false;
+            bool isApproved = moderationService.IsMapApproved(replay.Map.Trackname, replay.Map.Nick);
+            bool hasNoFailMod = replay.Mods.HasFlag(ModEnum.NoFail);
+
+            if (!isApproved) return false;
+
+            if (hasNoFailMod) return false;
 
             return true;
         }
