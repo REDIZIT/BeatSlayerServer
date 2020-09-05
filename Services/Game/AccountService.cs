@@ -287,12 +287,11 @@ namespace BeatSlayerServer.Services.Game
 
 
 
-        public Utils.Database.AccountData View(string nick)
+        public AccountData GetAccountDataByNick(string nick)
         {
-            if (!TryFindAccount(nick, out Utils.Database.Account acc)) return null;
+            if (!TryFindAccount(nick, out Account acc)) return null;
 
-            Utils.Database.AccountData data = acc.Cut(Utils.Database.Account.ToStringType.View);
-            Console.WriteLine(JsonConvert.SerializeObject(data, Formatting.Indented));
+            AccountData data = acc.Cut(Account.ToStringType.View);
             return data;
         }
 

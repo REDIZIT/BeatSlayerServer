@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using InEditor.Analyze;
 using Serilog;
+using BeatSlayerServer.Services.Multiplayer;
 
 namespace BeatSlayerServer
 {
@@ -100,6 +101,9 @@ namespace BeatSlayerServer
             services.AddTransient<SimulationService>();
 
             services.AddTransient<DashboardService>();
+
+
+            services.AddSingleton<LobbyService>();
         }
 
 

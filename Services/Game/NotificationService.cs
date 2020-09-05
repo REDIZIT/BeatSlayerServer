@@ -49,7 +49,7 @@ namespace BeatSlayerServer.Services.Game
 
 
             Remove(nick, id);
-            Send(not.TargetNick, new NotificationInfo()
+            Send(not.RequesterNick, new NotificationInfo()
             {
                 RequesterNick = not.RequesterNick,
                 TargetNick = nick,

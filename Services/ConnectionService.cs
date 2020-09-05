@@ -15,10 +15,14 @@ namespace BeatSlayerServer.Services
         public List<ConnectedPlayer> ConnectedPlayers { get; set; } = new List<ConnectedPlayer>();
         public IEnumerable<ConnectedPlayer> LoggedPlayers => ConnectedPlayers.Where(c => !string.IsNullOrWhiteSpace(c.Nick));
 
-        public readonly IHubContext<GameHub> hub;
         public Action<int> OnOnlineChange;
 
+        public readonly IHubContext<GameHub> hub;
         private readonly ILogger<ConnectionService> logger;
+
+
+
+
 
         public ConnectionService(ILogger<ConnectionService> logger, IHubContext<GameHub> hub)
         {
@@ -46,6 +50,12 @@ namespace BeatSlayerServer.Services
 
             OnOnlineChange(ConnectedPlayers.Count);
         }
+
+
+
+
+
+
         public void OnPlayerLoggedIn(string connectionId, string nick, bool isEditor, string ip)
         {
             ConnectedPlayer player = ConnectedPlayers.Find(c => c.ConnectionId == connectionId);
@@ -68,13 +78,16 @@ namespace BeatSlayerServer.Services
 
 
 
-
-
         public bool TryFindPlayer(string nick, out ConnectedPlayer player)
         {
             player = ConnectedPlayers.Find(c => c.Nick == nick);
 
             return player != null;
+        }
+        public ConnectedPlayer FindPlayer(string nick)
+        {
+            if(!TryFindPlayer(nick, out ConnectedPlayer player)) throw new Exception($"Player with nick {nick} not found in connected");
+            return player;
         }
     }
 }

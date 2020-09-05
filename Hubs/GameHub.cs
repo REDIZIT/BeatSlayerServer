@@ -17,6 +17,9 @@ using BeatSlayerServer.Services.Dashboard;
 using BeatSlayerServer.Models.Database;
 using BeatSlayerServer.Dtos.Tutorial;
 using BeatSlayerServer.Models.Configuration;
+using BeatSlayerServer.Models.Multiplayer;
+using BeatSlayerServer.Services.Multiplayer;
+using System.Linq;
 
 namespace BeatSlayerServer.Utils
 {
@@ -31,13 +34,14 @@ namespace BeatSlayerServer.Utils
         private readonly RankingService rankingService;
         private readonly NotificationService notificationService;
         private readonly ShopService shopService;
+        private readonly LobbyService lobbyService;
 
         private readonly DashboardService dashboardService;
         private readonly ServerSettings settings;
 
         public GameHub(MyDbContext context, ILogger<GameHub> logger, SettingsWrapper wrapper, ConnectionService connectionService, AccountService accountService,
             ChatService chatService, RankingService rankingService, NotificationService notificationService, ShopService shopService,
-            DashboardService dashboardService)
+            DashboardService dashboardService, LobbyService lobbyService)
         {
             this.context = context;
             this.logger = logger;
@@ -49,6 +53,7 @@ namespace BeatSlayerServer.Utils
             this.rankingService = rankingService;
             this.notificationService = notificationService;
             this.shopService = shopService;
+            this.lobbyService = lobbyService;
 
             this.dashboardService = dashboardService;
         }
@@ -61,8 +66,11 @@ namespace BeatSlayerServer.Utils
         }
         public override Task OnDisconnectedAsync(Exception err)
         {
+            lobbyService.OnPlayerDisconnected(connectionService.ConnectedPlayers.First(c => c.ConnectionId == Context.ConnectionId));
+
             connectionService.OnPlayerDisconnected(Context.ConnectionId);
             dashboardService.OnPlayerDisconnected(Context.ConnectionId, GetIp(Context.GetHttpContext()));
+
             return base.OnDisconnectedAsync(err);
         }
 
@@ -168,8 +176,12 @@ namespace BeatSlayerServer.Utils
         }
         public void Accounts_View(string nick)
         {
-            AccountData acc = accountService.View(nick);
+            AccountData acc = accountService.GetAccountDataByNick(nick);
             Clients.Caller.SendAsync("Accounts_OnView", acc);
+        }
+        public AccountData GetAccountByNick(string nick)
+        {
+            return accountService.GetAccountDataByNick(nick);
         }
         public void Accounts_Search(string str)
         {
@@ -225,9 +237,9 @@ namespace BeatSlayerServer.Utils
 
         #region Friends
 
-        public void Friends_InviteFriend(string addToNick, string nick)
+        public void Friends_InviteFriend(string targetNick, string requesterNick)
         {
-            notificationService.InviteFriend(addToNick, nick);
+            notificationService.InviteFriend(targetNick, requesterNick);
         }
         public void Friends_AcceptInvite(string nick, int id)
         {
@@ -311,6 +323,59 @@ namespace BeatSlayerServer.Utils
         public Dictionary<string, string> Tutorial_HardMaps()
         {
             return settings.Tutorial.HardMaps;
+        }
+
+        #endregion
+
+
+        #region Lobby
+
+        public List<LobbyDTO> GetLobbies()
+        {
+            return lobbyService.GetLobbies();
+        }
+        public LobbyDTO CreateLobby(string creatorNick)
+        {
+            // TODO: Make search by id or better by instance
+            ConnectedPlayer player = connectionService.FindPlayer(creatorNick);
+            Lobby lobby = lobbyService.CreateLobby(player);
+
+            return new LobbyDTO(lobby);
+        }
+
+        public LobbyDTO JoinLobby(int lobbyId, string nick)
+        {
+            ConnectedPlayer player = connectionService.FindPlayer(nick);
+            return lobbyService.JoinLobby(player, lobbyId);
+        }
+        public void LeaveLobby(int lobbyId, string nick)
+        {
+            ConnectedPlayer player = connectionService.FindPlayer(nick);
+            lobbyService.LeaveLobby(lobbyId, player);
+        }
+        public void ChangeLobbyHost(int lobbyId, string nick)
+        {
+            lobbyService.ChangeHost(lobbyId, nick);
+        }
+        public void KickPlayerFromLobby(int lobbyId, string nick)
+        {
+            lobbyService.Kick(lobbyId, nick);
+        }
+
+        public void ChangeLobbyMap(int lobbyId, MapData map)
+        {
+            lobbyService.ChangeMap(lobbyId, map);
+        }
+
+        public void ChangeReadyState(int lobbyId, string nick, LobbyPlayer.ReadyState state)
+        {
+            lobbyService.ChangeReadyState(lobbyId, nick, state);
+
+            foreach (LobbyPlayer player in lobbyService.GetPlayersInLobby(lobbyId))
+            {
+                //if (player.Player.Nick == nick) continue;
+                Clients.Client(player.Player.ConnectionId).SendAsync("OnRemotePlayerReadyStateChange", nick, state);
+            }
         }
 
         #endregion

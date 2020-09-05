@@ -19,8 +19,17 @@ namespace BeatSlayerServer.Controllers
 
         public IActionResult GetGameVersion()
         {
-            string file = System.IO.File.ReadAllText("/srv/prod/Data/InfoTable.json");
-            InfoTable table = JsonConvert.DeserializeObject<InfoTable>(file);
+            string infoTablePath = "/srv/prod/Data/InfoTable.json";
+            InfoTable table;
+            if (System.IO.File.Exists(infoTablePath))
+            {
+                table = JsonConvert.DeserializeObject<InfoTable>(System.IO.File.ReadAllText(infoTablePath));
+            }
+            else
+            {
+                return Content("1.0.0");
+            }
+
 
             DateTime t1 = DateTime.Now;
             TimeSpan deltaTime = t1.Subtract(table.LastGameVersionCheck);
