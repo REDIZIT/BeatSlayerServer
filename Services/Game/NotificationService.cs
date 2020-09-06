@@ -49,7 +49,7 @@ namespace BeatSlayerServer.Services.Game
 
 
             Remove(nick, id);
-            Send(not.RequesterNick, new NotificationInfo()
+            Send(not.TargetNick, new NotificationInfo()
             {
                 RequesterNick = not.RequesterNick,
                 TargetNick = nick,
@@ -64,7 +64,7 @@ namespace BeatSlayerServer.Services.Game
 
 
             Remove(nick, id);
-            Send(not.RequesterNick, new NotificationInfo()
+            Send(not.TargetNick, new NotificationInfo()
             {
                 RequesterNick = not.RequesterNick,
                 TargetNick = nick,
@@ -101,23 +101,15 @@ namespace BeatSlayerServer.Services.Game
 
             if(connectionService.TryFindPlayer(nick, out ConnectedPlayer conn))
             {
-                Console.WriteLine("Conn is not null");
                 connectionService.hub.Clients.Client(conn.ConnectionId).SendAsync("Notification_OnSend", notification);
-                Console.WriteLine("Sent");
             }
-            else Console.WriteLine("Conn is null");
 
             acc.Notifications.Add(notification);
-
-            Console.WriteLine("Now has " + acc.Notifications.Count);
-            Console.WriteLine(JsonConvert.SerializeObject(acc.Notifications, Formatting.Indented));
 
             ctx.SaveChanges();
         }
         public void Remove(string nick, int id)
         {
-            Console.WriteLine("RemoveNotify " + id);
-
             if (!accountService.TryFindAccount(nick, out Account acc)) return;
 
             ctx.Notifications.Remove(ctx.Notifications.FirstOrDefault(c => c.Id == id));

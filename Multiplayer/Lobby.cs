@@ -1,4 +1,5 @@
-﻿using BeatSlayerServer.Extensions;
+﻿using BeatSlayerServer.Enums.Game;
+using BeatSlayerServer.Extensions;
 using BeatSlayerServer.Models.Database;
 using BeatSlayerServer.Utils;
 using System;
@@ -69,6 +70,11 @@ namespace BeatSlayerServer.Models.Multiplayer
         {
             SelectedMap = map;
             // TODO: Notify lobby players
+        }
+
+        public void ChangeMods(string nick, ModEnum mods)
+        {
+            Players.First(c => c.Value.Player.Nick == nick).Value.Mods = mods;
         }
     }
 }

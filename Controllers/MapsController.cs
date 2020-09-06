@@ -35,10 +35,8 @@ namespace BeatSlayerServer.Controllers.Wrappers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile file)
         {
-            Console.WriteLine("Uploading project file");
             OperationResult op = await publishService.PublishProject(file);
 
-            Console.WriteLine("Publish result " + op.state.ToString());
             logger.LogError("[PUBLISH MAP] {result}", op);
 
             return Content(JsonConvert.SerializeObject(op));
@@ -54,7 +52,7 @@ namespace BeatSlayerServer.Controllers.Wrappers
             string filepath = settings.TracksFolder + "/" + trackname + "/" + nick + "/" + trackname + ".bsz";
             if (!System.IO.File.Exists(filepath))
             {
-                logger.LogError("[DOWNLOAD MAP] {trackname} by {nick} does not exist");
+                logger.LogError("[DOWNLOAD MAP] {trackname} by {nick} does not exist", trackname, nick);
                 return null;
             }
 

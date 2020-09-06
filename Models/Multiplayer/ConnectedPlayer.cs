@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BeatSlayerServer.Enums.Game;
+using System;
 
 namespace BeatSlayerServer.Utils
 {
@@ -25,6 +26,7 @@ namespace BeatSlayerServer.Utils
         public int SlotIndex { get; set; }
         public bool IsHost { get; set; }
         public ReadyState State { get; set; }
+        public ModEnum Mods { get; set; }
 
         public enum ReadyState
         {
@@ -56,6 +58,7 @@ namespace BeatSlayerServer.Utils
         public int SlotIndex { get; set; }
         public bool IsHost { get; set; }
         public LobbyPlayer.ReadyState State { get; set; }
+        public ModEnum Mods { get; set; }
 
         public LobbyPlayerDTO(LobbyPlayer player)
         {
@@ -63,6 +66,7 @@ namespace BeatSlayerServer.Utils
             SlotIndex = player.SlotIndex;
             IsHost = player.IsHost;
             State = player.State;
+            Mods = player.Mods;
         }
     }
 }

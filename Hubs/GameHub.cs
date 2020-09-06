@@ -20,6 +20,7 @@ using BeatSlayerServer.Models.Configuration;
 using BeatSlayerServer.Models.Multiplayer;
 using BeatSlayerServer.Services.Multiplayer;
 using System.Linq;
+using BeatSlayerServer.Enums.Game;
 
 namespace BeatSlayerServer.Utils
 {
@@ -362,9 +363,15 @@ namespace BeatSlayerServer.Utils
             lobbyService.Kick(lobbyId, nick);
         }
 
+
+
         public void ChangeLobbyMap(int lobbyId, MapData map)
         {
             lobbyService.ChangeMap(lobbyId, map);
+        }
+        public void ChangeLobbyMods(int lobbyId, string nick, ModEnum mods)
+        {
+            lobbyService.ChangeMods(lobbyId, nick, mods);
         }
 
         public void ChangeReadyState(int lobbyId, string nick, LobbyPlayer.ReadyState state)
@@ -376,6 +383,20 @@ namespace BeatSlayerServer.Utils
                 //if (player.Player.Nick == nick) continue;
                 Clients.Client(player.Player.ConnectionId).SendAsync("OnRemotePlayerReadyStateChange", nick, state);
             }
+        }
+
+
+        public void OnLobbyStartDownloading(int lobbyId, string nick)
+        {
+            lobbyService.OnStartDownloading(lobbyId, nick);
+        }
+        public void OnLobbyDownloadProgress(int lobbyId, string nick, int percent)
+        {
+            lobbyService.OnDownloadProgress(lobbyId, nick, percent);
+        }
+        public void OnLobbyDownloaded(int lobbyId, string nick)
+        {
+            lobbyService.OnDownloaded(lobbyId, nick);
         }
 
         #endregion

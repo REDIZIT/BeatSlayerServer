@@ -1,4 +1,5 @@
-﻿using BeatSlayerServer.Extensions;
+﻿using BeatSlayerServer.Enums.Game;
+using BeatSlayerServer.Extensions;
 using BeatSlayerServer.Models.Database;
 using BeatSlayerServer.Models.Multiplayer;
 using BeatSlayerServer.Utils;
@@ -80,7 +81,10 @@ namespace BeatSlayerServer.Services.Multiplayer
         }
         public void LeaveLobby(int lobbyId, ConnectedPlayer player)
         {
+            if (!Lobbies.ContainsKey(lobbyId)) return;
             Lobby lobby = Lobbies[lobbyId];
+
+            if (lobby.Players.All(c => c.Value.Player != player)) return;
             LobbyPlayer lobbyPlayer = lobby.Players.First(c => c.Value.Player == player).Value;
 
             // Ping about player leaving
@@ -123,6 +127,14 @@ namespace BeatSlayerServer.Services.Multiplayer
             hub.Clients.Clients(playersToPing).SendAsync("OnLobbyMapChange", map);
         }
 
+        public void ChangeMods(int lobbyId, string nick, ModEnum mods)
+        {
+            Lobbies[lobbyId].ChangeMods(nick, mods);
+
+            List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
+            hub.Clients.Clients(playersToPing).SendAsync("OnRemotePlayerModsChange", nick, mods);
+        }
+
         public void ChangeReadyState(int lobbyId, string nick, LobbyPlayer.ReadyState state)
         {
             Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == nick).Value.State = state;
@@ -149,6 +161,28 @@ namespace BeatSlayerServer.Services.Multiplayer
             hub.Clients.Clients(playersToPing).SendAsync("OnLobbyPlayerKick", new LobbyPlayerDTO(player));
 
             Lobbies[lobbyId].Leave(player.Player);
+        }
+
+        public void OnStartDownloading(int lobbyId, string nick)
+        {
+            Lobby lobby = Lobbies[lobbyId];
+
+            List<string> playersToPing = lobby.Players.Values.Where(c => c.Player.Nick != nick).Select(c => c.Player.ConnectionId).ToList();
+            hub.Clients.Clients(playersToPing).SendAsync("OnRemotePlayerStartDownloading", nick);
+        }
+        public void OnDownloadProgress(int lobbyId, string nick, int percent)
+        {
+            Lobby lobby = Lobbies[lobbyId];
+
+            List<string> playersToPing = lobby.Players.Values.Where(c => c.Player.Nick != nick).Select(c => c.Player.ConnectionId).ToList();
+            hub.Clients.Clients(playersToPing).SendAsync("OnRemotePlayerDownloadProgress", nick, percent);
+        }
+        public void OnDownloaded(int lobbyId, string nick)
+        {
+            Lobby lobby = Lobbies[lobbyId];
+
+            List<string> playersToPing = lobby.Players.Values.Where(c => c.Player.Nick != nick).Select(c => c.Player.ConnectionId).ToList();
+            hub.Clients.Clients(playersToPing).SendAsync("OnRemotePlayerDownloaded", nick);
         }
     }
 }
