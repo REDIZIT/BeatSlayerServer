@@ -78,6 +78,13 @@ namespace BeatSlayerServer.Services
 
 
 
+
+        public void InvokeAsync(List<string> connectionsIds, string methodName, params object[] args)
+        {
+            hub.Clients.Clients(connectionsIds).SendCoreAsync(methodName, args);
+        }
+
+
         public bool TryFindPlayer(string nick, out ConnectedPlayer player)
         {
             player = ConnectedPlayers.Find(c => c.Nick == nick);

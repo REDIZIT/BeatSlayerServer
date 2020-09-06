@@ -15,6 +15,7 @@ namespace BeatSlayerServer.Models.Multiplayer
         public int LobbyId { get; set; }
 
         public Dictionary<int, LobbyPlayer> Players { get; set; } = new Dictionary<int, LobbyPlayer>();
+        public List<string> PlayersIds { get; set; } = new List<string>();
 
         public MapData SelectedMap { get; set; }
         public DifficultyData SelectedDifficulty { get; set; }
@@ -27,15 +28,11 @@ namespace BeatSlayerServer.Models.Multiplayer
         public Lobby(int lobbyId, ConnectedPlayer firstPlayer)
         {
             LobbyId = lobbyId;
-
-            //Players[0] = new LobbyPlayer(firstPlayer, 0, true);
             LobbyName = firstPlayer.Nick + "'s lobby";
         }
 
         public LobbyPlayer Join(ConnectedPlayer player)
         {
-            //if (Players.Values.Any(c => c.Player == player && c.IsHost)) return;
-
             // Searching for free slots
             for (int i = 0; i < MAX_PLAYERS; i++)
             {
@@ -43,7 +40,7 @@ namespace BeatSlayerServer.Models.Multiplayer
                 if (!Players.ContainsKey(i))
                 {
                     Players[i] = new LobbyPlayer(player, i, Players.Count == 0);
-                    // TODO: Send info to players
+                    PlayersIds.Add(player.ConnectionId);
                     return Players[i];
                 }
             }
@@ -53,9 +50,8 @@ namespace BeatSlayerServer.Models.Multiplayer
 
         public void Leave(ConnectedPlayer player)
         {
-            // Idk how it will work tbh xD
             Players.RemoveAll(c => c.Value.Player == player);
-            // TODO: Send info to players
+            PlayersIds.RemoveAll(c => c == player.ConnectionId);
         }
 
         public void ChangeMap(MapData map, DifficultyData diff)
@@ -63,7 +59,6 @@ namespace BeatSlayerServer.Models.Multiplayer
             IsHostChangingMap = false;
             SelectedMap = map;
             SelectedDifficulty = diff;
-            // TODO: Notify lobby players
         }
 
         public void ChangeMods(string nick, ModEnum mods)

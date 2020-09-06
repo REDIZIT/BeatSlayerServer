@@ -385,12 +385,6 @@ namespace BeatSlayerServer.Utils
         public void ChangeReadyState(int lobbyId, string nick, LobbyPlayer.ReadyState state)
         {
             lobbyService.ChangeReadyState(lobbyId, nick, state);
-
-            foreach (LobbyPlayer player in lobbyService.GetPlayersInLobby(lobbyId))
-            {
-                //if (player.Player.Nick == nick) continue;
-                Clients.Client(player.Player.ConnectionId).SendAsync("OnRemotePlayerReadyStateChange", nick, state);
-            }
         }
 
 

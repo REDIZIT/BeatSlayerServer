@@ -1,6 +1,5 @@
 ﻿using BeatSlayerServer.Dtos.Mapping;
 using BeatSlayerServer.Enums.Game;
-using BeatSlayerServer.Extensions;
 using BeatSlayerServer.Models.Database;
 using BeatSlayerServer.Models.Multiplayer;
 using BeatSlayerServer.Utils;
@@ -14,11 +13,13 @@ namespace BeatSlayerServer.Services.Multiplayer
     {
         public Dictionary<int, Lobby> Lobbies { get; set; } = new Dictionary<int, Lobby>();
 
+        private readonly ConnectionService connService;
         private readonly IHubContext<GameHub> hub;
 
 
-        public LobbyService(IHubContext<GameHub> hub)
+        public LobbyService(ConnectionService connService, IHubContext<GameHub> hub)
         {
+            this.connService = connService;
             this.hub = hub;
         }
 
@@ -75,8 +76,7 @@ namespace BeatSlayerServer.Services.Multiplayer
         {
             LobbyPlayer lobbyPlayer = lobby.Join(player);
 
-            List<string> playersToPing = lobby.Players.Values.Where(c => c.Player != player).Select(c => c.Player.ConnectionId).ToList();
-            hub.Clients.Clients(playersToPing).SendAsync("OnLobbyPlayerJoin", new LobbyPlayerDTO(lobbyPlayer));
+            SendLobbyToAllExcept(lobby.LobbyId, player.Nick, "OnLobbyPlayerJoin", new LobbyPlayerDTO(lobbyPlayer));
 
             return new LobbyDTO(lobby);
         }
@@ -89,9 +89,7 @@ namespace BeatSlayerServer.Services.Multiplayer
             LobbyPlayer lobbyPlayer = lobby.Players.First(c => c.Value.Player == player).Value;
 
             // Ping about player leaving
-            List<string> playersToPing = lobby.Players.Values.Where(c => c.Player != player).Select(c => c.Player.ConnectionId).ToList();
-            hub.Clients.Clients(playersToPing).SendAsync("OnLobbyPlayerLeave", new LobbyPlayerDTO(lobbyPlayer));
-
+            SendLobbyToAllExcept(lobby.LobbyId, player.Nick, "OnLobbyPlayerLeave", new LobbyPlayerDTO(lobbyPlayer));
 
             // If host leaving
             if (lobbyPlayer.IsHost)
@@ -124,38 +122,32 @@ namespace BeatSlayerServer.Services.Multiplayer
         {
             Lobbies[lobbyId].ChangeMap(map, diff);
 
-            List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
-            hub.Clients.Clients(playersToPing).SendAsync("OnLobbyMapChange", map, diff);
+            SendLobbyToAll(lobbyId, "OnLobbyMapChange", map, diff);
         }
         public void HostStartChangingMap(int lobbyId)
         {
             Lobbies[lobbyId].IsHostChangingMap = true;
 
-            List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
-            hub.Clients.Clients(playersToPing).SendAsync("OnHostStartChangingMap");
+            SendLobbyToAll(lobbyId, "OnHostStartChangingMap");
         }
         public void HostCancelChangingMap(int lobbyId)
         {
             Lobbies[lobbyId].IsHostChangingMap = false;
 
-            List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
-            hub.Clients.Clients(playersToPing).SendAsync("OnHostCancelChangingMap");
+            SendLobbyToAll(lobbyId, "OnHostCancelChangingMap");
         }
 
         public void ChangeMods(int lobbyId, string nick, ModEnum mods)
         {
             Lobbies[lobbyId].ChangeMods(nick, mods);
 
-            List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
-            hub.Clients.Clients(playersToPing).SendAsync("OnRemotePlayerModsChange", nick, mods);
+            SendLobbyToAll(lobbyId, "OnRemotePlayerModsChange", nick, mods);
         }
 
         public void ChangeReadyState(int lobbyId, string nick, LobbyPlayer.ReadyState state)
         {
             Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == nick).Value.State = state;
-
-            //List<string> playersToPing = Lobbies[lobbyId].Players.Values.Where(c => c.Player.Nick != nick).Select(c => c.Player.ConnectionId).ToList();
-            //hub.Clients.Clients(playersToPing).SendAsync("OnRemotePlayerReadyStateChange", new LobbyPlayerDTO(lobbyPlayer));
+            SendLobbyToAll(lobbyId, "OnRemotePlayerReadyStateChange", nick, state);
         }
 
         public void ChangeHost(int lobbyId, string nick)
@@ -166,39 +158,45 @@ namespace BeatSlayerServer.Services.Multiplayer
                 player.IsHost = player.Player.Nick == nick;
             }
 
-            List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
-            hub.Clients.Clients(playersToPing).SendAsync("OnLobbyHostChange", new LobbyPlayerDTO(Lobbies[lobbyId].Players.First(c => c.Value.IsHost).Value));
+            SendLobbyToAll(lobbyId, "OnLobbyHostChange", new LobbyPlayerDTO(Lobbies[lobbyId].Players.First(c => c.Value.IsHost).Value));
         }
         public void Kick(int lobbyId, string nick)
         {
             LobbyPlayer player = Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == nick).Value;
 
-            List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
-            hub.Clients.Clients(playersToPing).SendAsync("OnLobbyPlayerKick", new LobbyPlayerDTO(player));
+            SendLobbyToAll(lobbyId, "OnLobbyPlayerKick", new LobbyPlayerDTO(player));
 
             Lobbies[lobbyId].Leave(player.Player);
         }
 
         public void OnStartDownloading(int lobbyId, string nick)
         {
-            Lobby lobby = Lobbies[lobbyId];
-
-            List<string> playersToPing = lobby.Players.Values.Where(c => c.Player.Nick != nick).Select(c => c.Player.ConnectionId).ToList();
-            hub.Clients.Clients(playersToPing).SendAsync("OnRemotePlayerStartDownloading", nick);
+            SendLobbyToAllExcept(lobbyId, nick, "OnRemotePlayerStartDownloading", nick);
         }
         public void OnDownloadProgress(int lobbyId, string nick, int percent)
         {
-            Lobby lobby = Lobbies[lobbyId];
-
-            List<string> playersToPing = lobby.Players.Values.Where(c => c.Player.Nick != nick).Select(c => c.Player.ConnectionId).ToList();
-            hub.Clients.Clients(playersToPing).SendAsync("OnRemotePlayerDownloadProgress", nick, percent);
+            SendLobbyToAllExcept(lobbyId, nick, "OnRemotePlayerDownloadProgress", nick, percent);
         }
         public void OnDownloaded(int lobbyId, string nick)
         {
-            Lobby lobby = Lobbies[lobbyId];
+            SendLobbyToAllExcept(lobbyId, nick, "OnRemotePlayerDownloaded", nick);
+        }
 
-            List<string> playersToPing = lobby.Players.Values.Where(c => c.Player.Nick != nick).Select(c => c.Player.ConnectionId).ToList();
-            hub.Clients.Clients(playersToPing).SendAsync("OnRemotePlayerDownloaded", nick);
+
+
+
+        private void SendLobbyToAll(int lobbyId, string methodName, params object[] args)
+        {
+            connService.InvokeAsync(Lobbies[lobbyId].PlayersIds, methodName, args);
+        }
+        private void SendLobbyToAllExcept(int lobbyId, string exceptNick, string methodName, params object[] args)
+        {
+            string connId = Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == exceptNick).Value.Player.ConnectionId;
+
+            List<string> playersToPing = Lobbies[lobbyId].PlayersIds;
+            playersToPing.Remove(connId);
+
+            connService.InvokeAsync(playersToPing, methodName, args);
         }
     }
 }
