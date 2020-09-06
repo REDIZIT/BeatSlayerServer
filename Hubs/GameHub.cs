@@ -365,9 +365,13 @@ namespace BeatSlayerServer.Utils
 
 
 
-        public void ChangeLobbyMap(int lobbyId, MapData map)
+        public void ChangeLobbyMap(int lobbyId, MapData map, DifficultyData diff)
         {
-            lobbyService.ChangeMap(lobbyId, map);
+            lobbyService.ChangeMap(lobbyId, map, diff);
+        }
+        public void HostStartChangingMap(int lobbyId)
+        {
+            lobbyService.HostStartChangingMap(lobbyId);
         }
         public void ChangeLobbyMods(int lobbyId, string nick, ModEnum mods)
         {

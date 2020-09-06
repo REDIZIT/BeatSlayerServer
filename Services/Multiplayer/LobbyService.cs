@@ -1,4 +1,5 @@
-﻿using BeatSlayerServer.Enums.Game;
+﻿using BeatSlayerServer.Dtos.Mapping;
+using BeatSlayerServer.Enums.Game;
 using BeatSlayerServer.Extensions;
 using BeatSlayerServer.Models.Database;
 using BeatSlayerServer.Models.Multiplayer;
@@ -119,12 +120,19 @@ namespace BeatSlayerServer.Services.Multiplayer
             }
         }
 
-        public void ChangeMap(int lobbyId, MapData map)
+        public void ChangeMap(int lobbyId, MapData map, DifficultyData diff)
         {
-            Lobbies[lobbyId].ChangeMap(map);
+            Lobbies[lobbyId].ChangeMap(map, diff);
 
             List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
-            hub.Clients.Clients(playersToPing).SendAsync("OnLobbyMapChange", map);
+            hub.Clients.Clients(playersToPing).SendAsync("OnLobbyMapChange", map, diff);
+        }
+        public void HostStartChangingMap(int lobbyId)
+        {
+            Lobbies[lobbyId].IsHostChangingMap = true;
+
+            List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
+            hub.Clients.Clients(playersToPing).SendAsync("OnHostStartChangingMap");
         }
 
         public void ChangeMods(int lobbyId, string nick, ModEnum mods)

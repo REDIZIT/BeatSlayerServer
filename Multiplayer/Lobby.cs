@@ -1,4 +1,5 @@
-﻿using BeatSlayerServer.Enums.Game;
+﻿using BeatSlayerServer.Dtos.Mapping;
+using BeatSlayerServer.Enums.Game;
 using BeatSlayerServer.Extensions;
 using BeatSlayerServer.Models.Database;
 using BeatSlayerServer.Utils;
@@ -16,6 +17,7 @@ namespace BeatSlayerServer.Models.Multiplayer
         public Dictionary<int, LobbyPlayer> Players { get; set; } = new Dictionary<int, LobbyPlayer>();
 
         public MapData SelectedMap { get; set; }
+        public DifficultyData SelectedDifficulty { get; set; }
         public bool IsHostChangingMap { get; set; }
 
 
@@ -28,16 +30,6 @@ namespace BeatSlayerServer.Models.Multiplayer
 
             //Players[0] = new LobbyPlayer(firstPlayer, 0, true);
             LobbyName = firstPlayer.Nick + "'s lobby";
-
-            SelectedMap = new MapData()
-            {
-                Group = new Utils.Database.GroupData()
-                {
-                    Author = "Nightcore",
-                    Name = "IZY"
-                },
-                Nick = "REDIZIT"
-            };
         }
 
         public LobbyPlayer Join(ConnectedPlayer player)
@@ -66,9 +58,11 @@ namespace BeatSlayerServer.Models.Multiplayer
             // TODO: Send info to players
         }
 
-        public void ChangeMap(MapData map)
+        public void ChangeMap(MapData map, DifficultyData diff)
         {
+            IsHostChangingMap = false;
             SelectedMap = map;
+            SelectedDifficulty = diff;
             // TODO: Notify lobby players
         }
 
