@@ -25,7 +25,6 @@ namespace BeatSlayerServer.Services.Game
         public void InviteFriend(string targetNick, string requesterNick)
         {
             if (!ctx.Players.Any(c => c.Nick == targetNick)) return;
-
             if (!ctx.Players.Any(c => c.Nick == requesterNick)) return;
 
             SendFriendInvite(targetNick, requesterNick);
@@ -49,10 +48,10 @@ namespace BeatSlayerServer.Services.Game
 
 
             Remove(nick, id);
-            Send(not.TargetNick, new NotificationInfo()
+            Send(not.RequesterNick, new NotificationInfo()
             {
-                RequesterNick = not.RequesterNick,
-                TargetNick = nick,
+                RequesterNick = not.TargetNick,
+                TargetNick = not.RequesterNick,
                 Type = NotificationType.FriendInviteAccept
             });
         }
@@ -64,10 +63,10 @@ namespace BeatSlayerServer.Services.Game
 
 
             Remove(nick, id);
-            Send(not.TargetNick, new NotificationInfo()
+            Send(not.RequesterNick, new NotificationInfo()
             {
-                RequesterNick = not.RequesterNick,
-                TargetNick = nick,
+                RequesterNick = not.TargetNick,
+                TargetNick = not.RequesterNick,
                 Type = NotificationType.FriendInviteReject
             });
         }
@@ -75,8 +74,6 @@ namespace BeatSlayerServer.Services.Game
         {
             if (!accountService.TryFindAccount(fromNick, out Account fromPlayer)) return;
             if (!accountService.TryFindAccount(nick, out Account player)) return;
-
-            Console.WriteLine("Remove friend " + nick + " from " + fromNick);
 
             player.Friends.Remove(fromPlayer);
             fromPlayer.Friends.Remove(player);
@@ -94,19 +91,13 @@ namespace BeatSlayerServer.Services.Game
 
 
             ctx.Notifications.Add(notification);
+            acc.Notifications.Add(notification);
             ctx.SaveChanges();
-
-
-            Console.WriteLine("Send notification " + nick + " " + notification.Type.ToString() + " with id " + notification.Id);
 
             if(connectionService.TryFindPlayer(nick, out ConnectedPlayer conn))
             {
                 connectionService.hub.Clients.Client(conn.ConnectionId).SendAsync("Notification_OnSend", notification);
             }
-
-            acc.Notifications.Add(notification);
-
-            ctx.SaveChanges();
         }
         public void Remove(string nick, int id)
         {

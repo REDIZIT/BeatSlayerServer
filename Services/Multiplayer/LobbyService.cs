@@ -134,6 +134,13 @@ namespace BeatSlayerServer.Services.Multiplayer
             List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
             hub.Clients.Clients(playersToPing).SendAsync("OnHostStartChangingMap");
         }
+        public void HostCancelChangingMap(int lobbyId)
+        {
+            Lobbies[lobbyId].IsHostChangingMap = false;
+
+            List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
+            hub.Clients.Clients(playersToPing).SendAsync("OnHostCancelChangingMap");
+        }
 
         public void ChangeMods(int lobbyId, string nick, ModEnum mods)
         {
@@ -153,6 +160,7 @@ namespace BeatSlayerServer.Services.Multiplayer
 
         public void ChangeHost(int lobbyId, string nick)
         {
+            Lobbies[lobbyId].IsHostChangingMap = false;
             foreach (LobbyPlayer player in Lobbies[lobbyId].Players.Values)
             {
                 player.IsHost = player.Player.Nick == nick;
