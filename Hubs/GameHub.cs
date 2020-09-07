@@ -21,6 +21,7 @@ using BeatSlayerServer.Models.Multiplayer;
 using BeatSlayerServer.Services.Multiplayer;
 using System.Linq;
 using BeatSlayerServer.Enums.Game;
+using BeatSlayerServer.Models.Multiplayer.Chat;
 
 namespace BeatSlayerServer.Utils
 {
@@ -399,6 +400,15 @@ namespace BeatSlayerServer.Utils
         public void OnLobbyDownloaded(int lobbyId, string nick)
         {
             lobbyService.OnDownloaded(lobbyId, nick);
+        }
+
+
+
+
+
+        public void SendLobbyPlayerMessage(int lobbyId, LobbyPlayerChatMessage message)
+        {
+            lobbyService.SendPlayerMessage(lobbyId, message);
         }
 
         #endregion

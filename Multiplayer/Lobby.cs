@@ -14,8 +14,8 @@ namespace BeatSlayerServer.Models.Multiplayer
         public string LobbyName { get; set; }
         public int LobbyId { get; set; }
 
-        public Dictionary<int, LobbyPlayer> Players { get; set; } = new Dictionary<int, LobbyPlayer>();
-        public List<string> PlayersIds { get; set; } = new List<string>();
+        public Dictionary<int, LobbyPlayer> Players { get; set; }
+        public List<string> PlayersIds { get; set; }
 
         public MapData SelectedMap { get; set; }
         public DifficultyData SelectedDifficulty { get; set; }
@@ -29,6 +29,8 @@ namespace BeatSlayerServer.Models.Multiplayer
         {
             LobbyId = lobbyId;
             LobbyName = firstPlayer.Nick + "'s lobby";
+            Players = new Dictionary<int, LobbyPlayer>();
+            PlayersIds = new List<string>();
         }
 
         public LobbyPlayer Join(ConnectedPlayer player)
@@ -41,6 +43,7 @@ namespace BeatSlayerServer.Models.Multiplayer
                 {
                     Players[i] = new LobbyPlayer(player, i, Players.Count == 0);
                     PlayersIds.Add(player.ConnectionId);
+                    Console.WriteLine("Add player id : " + player.ConnectionId);
                     return Players[i];
                 }
             }
@@ -51,7 +54,9 @@ namespace BeatSlayerServer.Models.Multiplayer
         public void Leave(ConnectedPlayer player)
         {
             Players.RemoveAll(c => c.Value.Player == player);
+            Console.WriteLine("Remove " + player.ConnectionId + ". Count was " + PlayersIds.Count);
             PlayersIds.RemoveAll(c => c == player.ConnectionId);
+            Console.WriteLine("Count become " + PlayersIds.Count);
         }
 
         public void ChangeMap(MapData map, DifficultyData diff)

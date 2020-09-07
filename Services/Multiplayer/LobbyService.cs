@@ -2,8 +2,10 @@
 using BeatSlayerServer.Enums.Game;
 using BeatSlayerServer.Models.Database;
 using BeatSlayerServer.Models.Multiplayer;
+using BeatSlayerServer.Models.Multiplayer.Chat;
 using BeatSlayerServer.Utils;
 using Microsoft.AspNetCore.SignalR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +13,7 @@ namespace BeatSlayerServer.Services.Multiplayer
 {
     public class LobbyService
     {
-        public Dictionary<int, Lobby> Lobbies { get; set; } = new Dictionary<int, Lobby>();
+        public Dictionary<int, Lobby> Lobbies { get;  set; } = new Dictionary<int, Lobby>();
 
         private readonly ConnectionService connService;
         private readonly IHubContext<GameHub> hub;
@@ -21,6 +23,10 @@ namespace BeatSlayerServer.Services.Multiplayer
         {
             this.connService = connService;
             this.hub = hub;
+        }
+        private void Log(string message)
+        {
+            Console.WriteLine(message);
         }
 
         public void OnPlayerDisconnected(ConnectedPlayer player)
@@ -70,12 +76,10 @@ namespace BeatSlayerServer.Services.Multiplayer
 
         public LobbyDTO JoinLobby(ConnectedPlayer player, int lobbyId)
         {
-            return JoinLobby(player, Lobbies[lobbyId]);
-        }
-        public LobbyDTO JoinLobby(ConnectedPlayer player, Lobby lobby)
-        {
+            Lobby lobby = Lobbies[lobbyId];
             LobbyPlayer lobbyPlayer = lobby.Join(player);
 
+            Log("JoinLobby");
             SendLobbyToAllExcept(lobby.LobbyId, player.Nick, "OnLobbyPlayerJoin", new LobbyPlayerDTO(lobbyPlayer));
 
             return new LobbyDTO(lobby);
@@ -88,6 +92,7 @@ namespace BeatSlayerServer.Services.Multiplayer
             if (lobby.Players.All(c => c.Value.Player != player)) return;
             LobbyPlayer lobbyPlayer = lobby.Players.First(c => c.Value.Player == player).Value;
 
+            Log("JoinLobby");
             // Ping about player leaving
             SendLobbyToAllExcept(lobby.LobbyId, player.Nick, "OnLobbyPlayerLeave", new LobbyPlayerDTO(lobbyPlayer));
 
@@ -184,10 +189,30 @@ namespace BeatSlayerServer.Services.Multiplayer
 
 
 
+        #region Chat
+
+        public void SendPlayerMessage(int lobbyId, LobbyPlayerChatMessage message)
+        {
+            SendLobbyToAll(lobbyId, "OnLobbyPlayerMessage", message.Message);
+        }
+
+
+        #endregion
+
+
+
+
+
+
+
+
+
+
 
         private void SendLobbyToAll(int lobbyId, string methodName, params object[] args)
         {
             connService.InvokeAsync(Lobbies[lobbyId].PlayersIds, methodName, args);
+            Log($"Ping All {Lobbies[lobbyId].PlayersIds.Count} players");
         }
         private void SendLobbyToAllExcept(int lobbyId, string exceptNick, string methodName, params object[] args)
         {
@@ -196,6 +221,7 @@ namespace BeatSlayerServer.Services.Multiplayer
             List<string> playersToPing = Lobbies[lobbyId].PlayersIds;
             playersToPing.Remove(connId);
 
+            Log($"Ping all {playersToPing.Count}/{string.Join(',', Lobbies[lobbyId].PlayersIds)} players except " + exceptNick);
             connService.InvokeAsync(playersToPing, methodName, args);
         }
     }
