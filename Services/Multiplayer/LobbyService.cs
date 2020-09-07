@@ -212,17 +212,19 @@ namespace BeatSlayerServer.Services.Multiplayer
 
         private void SendLobbyToAll(int lobbyId, string methodName, params object[] args)
         {
-            connService.InvokeAsync(Lobbies[lobbyId].PlayersIds, methodName, args);
-            Log($"Ping All {Lobbies[lobbyId].PlayersIds.Count} players");
+            List<string> playersToPing = new List<string>();
+            playersToPing.AddRange(Lobbies[lobbyId].PlayersIds);
+
+            connService.InvokeAsync(playersToPing, methodName, args);
         }
         private void SendLobbyToAllExcept(int lobbyId, string exceptNick, string methodName, params object[] args)
         {
             string connId = Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == exceptNick).Value.Player.ConnectionId;
 
-            List<string> playersToPing = Lobbies[lobbyId].PlayersIds;
+            List<string> playersToPing = new List<string>();
+            playersToPing.AddRange(Lobbies[lobbyId].PlayersIds);
             playersToPing.Remove(connId);
 
-            Log($"Ping all {playersToPing.Count}/{string.Join(',', Lobbies[lobbyId].PlayersIds)} players except " + exceptNick);
             connService.InvokeAsync(playersToPing, methodName, args);
         }
     }

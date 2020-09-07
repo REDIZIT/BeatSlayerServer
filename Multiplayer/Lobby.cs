@@ -43,7 +43,6 @@ namespace BeatSlayerServer.Models.Multiplayer
                 {
                     Players[i] = new LobbyPlayer(player, i, Players.Count == 0);
                     PlayersIds.Add(player.ConnectionId);
-                    Console.WriteLine("Add player id : " + player.ConnectionId);
                     return Players[i];
                 }
             }
@@ -54,9 +53,7 @@ namespace BeatSlayerServer.Models.Multiplayer
         public void Leave(ConnectedPlayer player)
         {
             Players.RemoveAll(c => c.Value.Player == player);
-            Console.WriteLine("Remove " + player.ConnectionId + ". Count was " + PlayersIds.Count);
             PlayersIds.RemoveAll(c => c == player.ConnectionId);
-            Console.WriteLine("Count become " + PlayersIds.Count);
         }
 
         public void ChangeMap(MapData map, DifficultyData diff)
