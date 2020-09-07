@@ -374,10 +374,6 @@ namespace BeatSlayerServer.Utils
         {
             lobbyService.HostStartChangingMap(lobbyId);
         }
-        public void HostCancelChangingMap(int lobbyId)
-        {
-            lobbyService.HostCancelChangingMap(lobbyId);
-        }
         public void ChangeLobbyMods(int lobbyId, string nick, ModEnum mods)
         {
             lobbyService.ChangeMods(lobbyId, nick, mods);
