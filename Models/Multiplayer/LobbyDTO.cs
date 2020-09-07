@@ -1,4 +1,5 @@
-﻿using BeatSlayerServer.Models.Database;
+﻿using BeatSlayerServer.Dtos.Mapping;
+using BeatSlayerServer.Models.Database;
 using BeatSlayerServer.Utils;
 using System.Collections.Generic;
 
@@ -9,10 +10,11 @@ namespace BeatSlayerServer.Models.Multiplayer
         public string Name { get; set; }
         public int Id { get; set; }
 
-        public List<LobbyPlayerDTO> Players { get; set; }
-
         public MapData SelectedMap { get; set; }
+        public DifficultyData SelectedDifficulty { get; set; }
+        public bool IsHostChangingMap { get; set; }
 
+        public List<LobbyPlayerDTO> Players { get; set; }
 
         public LobbyDTO(Lobby lobby)
         {
@@ -25,7 +27,9 @@ namespace BeatSlayerServer.Models.Multiplayer
                 Players.Add(new LobbyPlayerDTO(player.Value));
             }
 
+            IsHostChangingMap = lobby.IsHostChangingMap;
             SelectedMap = lobby.SelectedMap;
+            SelectedDifficulty = lobby.SelectedDifficulty;
         }
     }
 }

@@ -52,7 +52,7 @@ namespace BeatSlayerServer.Models.Multiplayer
 
         public void Leave(ConnectedPlayer player)
         {
-            Players.RemoveAll(c => c.Value.Player == player);
+            Players.RemoveAll(c => c.Value.Player.Nick == player.Nick);
             PlayersIds.RemoveAll(c => c == player.ConnectionId);
         }
 

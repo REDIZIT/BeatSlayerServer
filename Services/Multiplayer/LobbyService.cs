@@ -92,7 +92,6 @@ namespace BeatSlayerServer.Services.Multiplayer
             if (lobby.Players.All(c => c.Value.Player != player)) return;
             LobbyPlayer lobbyPlayer = lobby.Players.First(c => c.Value.Player == player).Value;
 
-            Log("JoinLobby");
             // Ping about player leaving
             SendLobbyToAllExcept(lobby.LobbyId, player.Nick, "OnLobbyPlayerLeave", new LobbyPlayerDTO(lobbyPlayer));
 
@@ -119,6 +118,7 @@ namespace BeatSlayerServer.Services.Multiplayer
 
             if (lobby.Players.Count == 0)
             {
+                Console.WriteLine("Destroy lobby");
                 Lobbies.Remove(lobbyId);
             }
         }
@@ -159,12 +159,13 @@ namespace BeatSlayerServer.Services.Multiplayer
 
         public void ChangeHost(int lobbyId, string nick)
         {
+            string prevHost = Lobbies[lobbyId].Players.Values.First(c => c.IsHost).Player.Nick;
             foreach (LobbyPlayer player in Lobbies[lobbyId].Players.Values)
             {
                 player.IsHost = player.Player.Nick == nick;
             }
 
-            SendLobbyToAll(lobbyId, "OnLobbyHostChange", new LobbyPlayerDTO(Lobbies[lobbyId].Players.First(c => c.Value.IsHost).Value));
+            SendLobbyToAllExcept(lobbyId, prevHost, "OnLobbyHostChange", new LobbyPlayerDTO(Lobbies[lobbyId].Players.First(c => c.Value.IsHost).Value));
         }
         public void Kick(int lobbyId, string nick)
         {
@@ -194,7 +195,7 @@ namespace BeatSlayerServer.Services.Multiplayer
 
         public void SendPlayerMessage(int lobbyId, LobbyPlayerChatMessage message)
         {
-            SendLobbyToAll(lobbyId, "OnLobbyPlayerMessage", message.Message);
+            SendLobbyToAll(lobbyId, "OnLobbyPlayerMessage", message);
         }
 
 
@@ -212,8 +213,10 @@ namespace BeatSlayerServer.Services.Multiplayer
 
         private void SendLobbyToAll(int lobbyId, string methodName, params object[] args)
         {
-            List<string> playersToPing = new List<string>();
-            playersToPing.AddRange(Lobbies[lobbyId].PlayersIds);
+            //List<string> playersToPing = new List<string>();
+            //playersToPing.AddRange(Lobbies[lobbyId].PlayersIds);
+
+            List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
 
             connService.InvokeAsync(playersToPing, methodName, args);
         }
@@ -221,9 +224,12 @@ namespace BeatSlayerServer.Services.Multiplayer
         {
             string connId = Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == exceptNick).Value.Player.ConnectionId;
 
-            List<string> playersToPing = new List<string>();
-            playersToPing.AddRange(Lobbies[lobbyId].PlayersIds);
-            playersToPing.Remove(connId);
+            //List<string> playersToPing = new List<string>();
+            //playersToPing.AddRange(Lobbies[lobbyId].PlayersIds);
+            //playersToPing.Remove(connId);
+
+            List<string> playersToPing = Lobbies[lobbyId].Players.Values.Where(c => c.Player.Nick != exceptNick).Select(c => c.Player.ConnectionId).ToList();
+
 
             connService.InvokeAsync(playersToPing, methodName, args);
         }
