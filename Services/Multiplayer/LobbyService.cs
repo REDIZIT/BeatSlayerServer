@@ -79,8 +79,15 @@ namespace BeatSlayerServer.Services.Multiplayer
             Lobby lobby = Lobbies[lobbyId];
             LobbyPlayer lobbyPlayer = lobby.Join(player);
 
-            Log("JoinLobby");
+
             SendLobbyToAllExcept(lobby.LobbyId, player.Nick, "OnLobbyPlayerJoin", new LobbyPlayerDTO(lobbyPlayer));
+            SendLobbyToAllExcept(lobby.LobbyId, player.Nick, "OnLobbySystemMessage", new LobbySystemChatMessage()
+            {
+                MessageType = LobbySystemChatMessage.SystemMessageType.Join,
+                PlayerNick = player.Nick
+            });
+
+
 
             return new LobbyDTO(lobby);
         }
@@ -92,8 +99,16 @@ namespace BeatSlayerServer.Services.Multiplayer
             if (lobby.Players.All(c => c.Value.Player != player)) return;
             LobbyPlayer lobbyPlayer = lobby.Players.First(c => c.Value.Player == player).Value;
 
+
+
             // Ping about player leaving
             SendLobbyToAllExcept(lobby.LobbyId, player.Nick, "OnLobbyPlayerLeave", new LobbyPlayerDTO(lobbyPlayer));
+            SendLobbyToAllExcept(lobby.LobbyId, player.Nick, "OnLobbySystemMessage", new LobbySystemChatMessage()
+            {
+                MessageType = LobbySystemChatMessage.SystemMessageType.Leave,
+                PlayerNick = player.Nick
+            });
+
 
             // If host leaving
             if (lobbyPlayer.IsHost)
@@ -172,6 +187,11 @@ namespace BeatSlayerServer.Services.Multiplayer
             LobbyPlayer player = Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == nick).Value;
 
             SendLobbyToAll(lobbyId, "OnLobbyPlayerKick", new LobbyPlayerDTO(player));
+            SendLobbyToAllExcept(lobbyId, nick, "OnLobbySystemMessage", new LobbySystemChatMessage()
+            {
+                MessageType = LobbySystemChatMessage.SystemMessageType.Kick,
+                PlayerNick = nick
+            });
 
             Lobbies[lobbyId].Leave(player.Player);
         }
@@ -197,6 +217,14 @@ namespace BeatSlayerServer.Services.Multiplayer
         {
             SendLobbyToAll(lobbyId, "OnLobbyPlayerMessage", message);
         }
+        public void OnLobbyPlayerStartTyping(int lobbyId, string nick)
+        {
+            SendLobbyToAllExcept(lobbyId, nick, "OnLobbyPlayerStartTyping", nick);
+        }
+        public void OnLobbyPlayerStopTyping(int lobbyId, string nick)
+        {
+            SendLobbyToAllExcept(lobbyId, nick, "OnLobbyPlayerStopTyping", nick);
+        }
 
 
         #endregion
@@ -213,8 +241,7 @@ namespace BeatSlayerServer.Services.Multiplayer
 
         private void SendLobbyToAll(int lobbyId, string methodName, params object[] args)
         {
-            //List<string> playersToPing = new List<string>();
-            //playersToPing.AddRange(Lobbies[lobbyId].PlayersIds);
+            if (!Lobbies.ContainsKey(lobbyId)) return;
 
             List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
 
@@ -222,6 +249,8 @@ namespace BeatSlayerServer.Services.Multiplayer
         }
         private void SendLobbyToAllExcept(int lobbyId, string exceptNick, string methodName, params object[] args)
         {
+            if (!Lobbies.ContainsKey(lobbyId)) return;
+
             string connId = Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == exceptNick).Value.Player.ConnectionId;
 
             //List<string> playersToPing = new List<string>();

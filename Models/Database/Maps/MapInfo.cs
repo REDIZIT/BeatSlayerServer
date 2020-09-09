@@ -1,7 +1,5 @@
-﻿using BeatSlayerServer.Dtos.Mapping;
-using BeatSlayerServer.Models.Database.Maps;
+﻿using BeatSlayerServer.Models.Database.Maps;
 using BeatSlayerServer.Utils.Database;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,15 +22,5 @@ namespace BeatSlayerServer.Models.Database
         public int Dislikes => Difficulties.Sum(c => c.Dislikes);
         public int PlayCount => Difficulties.Sum(c => c.PlayCount);
 
-    }
-
-    public class MapData
-    {
-        public GroupData Group { get; set; }
-        [JsonIgnore] public string Trackname { get { return Group.Author + "-" + Group.Name; } }
-
-        public string Nick { get; set; }
-
-        public List<ReplayData> Replays { get; set; } = new List<ReplayData>();
     }
 }

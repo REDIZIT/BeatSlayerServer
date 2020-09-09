@@ -406,6 +406,14 @@ namespace BeatSlayerServer.Utils
         {
             lobbyService.SendPlayerMessage(lobbyId, message);
         }
+        public void OnLobbyPlayerStartTyping(int lobbyId, string nick)
+        {
+            lobbyService.OnLobbyPlayerStartTyping(lobbyId, nick);
+        }
+        public void OnLobbyPlayerStopTyping(int lobbyId, string nick)
+        {
+            lobbyService.OnLobbyPlayerStopTyping(lobbyId, nick);
+        }
 
         #endregion
 
