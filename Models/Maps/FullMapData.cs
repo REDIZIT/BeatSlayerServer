@@ -19,5 +19,19 @@ namespace BeatSlayerServer.Models.Maps
 
         public DateTime PublishTime { get; set; }
         //public DateTime ApprovedTime { get; set; }
+
+
+        /// <summary>Used for converting mapinfo.xml to <see cref="BasicMapData"/></summary>
+        public FullMapData(MapInfo projectMapInfo)
+        {
+            Author = projectMapInfo.group.author;
+            Name = projectMapInfo.group.name;
+            MapperNick = projectMapInfo.nick;
+            IsApproved = projectMapInfo.approved;
+
+            downloads = projectMapInfo.Downloads;
+
+            Difficulties = projectMapInfo.difficulties;
+        }
     }
 }

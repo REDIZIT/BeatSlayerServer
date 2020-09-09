@@ -41,15 +41,6 @@ namespace BeatSlayerServer.Controllers.Wrappers
             return Content(DatabaseAPI.GetMessage());
         }
 
-        /// <summary>
-        /// Deprecated. Use GetGroupsExtended()
-        /// </summary>
-        [Obsolete]
-        public IActionResult GetGroups()
-        {
-            List<MapInfo> ls = DatabaseAPI.GetGroups();
-            return Content(JsonConvert.SerializeObject(ls));
-        }
 
         public IActionResult GetGroup(string trackname)
         {
@@ -76,11 +67,11 @@ namespace BeatSlayerServer.Controllers.Wrappers
 
 
 
-        public IActionResult GetMaps(string trackname, bool catchError = false)
+        public IActionResult GetMaps(string trackname)
         {
             string _trackname = trackname.Replace("%amp%", "&");
 
-            List<MapInfo> ls = mapsService.GetMaps(_trackname);
+            var ls = mapsService.GetMaps(_trackname);
           
             return Content(JsonConvert.SerializeObject(ls));
         }
@@ -190,12 +181,9 @@ namespace BeatSlayerServer.Controllers.Wrappers
 
 
 
-                //var difficulty = ctx.Groups.FirstOrDefault(c => c.Author == author && c.Name == name)
-                //    .Maps.FirstOrDefault(c => c.Nick == nick)
-                //    .Difficulties.FirstOrDefault(c => c.InnerId == difficultyId);
                 MapInfo map = ProjectManager.GetMapInfo(trackname, nick);
                 var diff = map.difficulties.FirstOrDefault(c => c.id == difficultyId);
-                int stars = diff.stars;
+                int stars = -1;
                 if (diff != null)
                 {
                     stars = map.difficulties.FirstOrDefault(c => c.id == difficultyId).stars;

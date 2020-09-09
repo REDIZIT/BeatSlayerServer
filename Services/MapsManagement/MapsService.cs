@@ -155,17 +155,17 @@ namespace BeatSlayerServer.Services.MapsManagement
             });
         }
 
-        public List<MapInfo> GetMaps(string trackname)
+        public List<FullMapData> GetMaps(string trackname)
         {
             string groupFolder = settings.TracksFolder + "/" + trackname.Replace("%amp%", "&");
             if (!Directory.Exists(groupFolder)) throw new Exception("Group has been deleted");
 
             string[] mapsFolders = Directory.GetDirectories(groupFolder);
-            List<MapInfo> mapInfos = new List<MapInfo>();
+            List<FullMapData> mapInfos = new List<FullMapData>();
             for (int i = 0; i < mapsFolders.Length; i++)
             {
                 string nick = new DirectoryInfo(mapsFolders[i]).Name;
-                mapInfos.Add(ProjectManager.GetMapInfo(trackname, nick));
+                mapInfos.Add(new FullMapData(ProjectManager.GetMapInfo(trackname, nick)));
             }
 
             return mapInfos;
@@ -174,7 +174,7 @@ namespace BeatSlayerServer.Services.MapsManagement
         {
             try
             {
-                List<MapInfo> ls = GetMaps(trackname);
+                List<FullMapData> ls = GetMaps(trackname);
                 return new OperationResult(OperationResult.State.Success, ls);
             }
             catch (Exception err)

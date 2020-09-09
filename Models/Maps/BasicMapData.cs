@@ -1,4 +1,5 @@
 ﻿using BeatSlayerServer.Enums;
+using BeatSlayerServer.ProjectManagement;
 using Newtonsoft.Json;
 
 namespace BeatSlayerServer.Models.Maps
@@ -7,7 +8,7 @@ namespace BeatSlayerServer.Models.Maps
     {
         public string Author { get; set; }
         public string Name { get; set; }
-        public string Nick { get; set; }
+        public string MapperNick { get; set; }
         public bool IsApproved { get; set; }
         public GroupType MapType { get; set; } = GroupType.Author;
 
@@ -15,5 +16,7 @@ namespace BeatSlayerServer.Models.Maps
 
 
         public BasicMapData() { }
+
+        
     }
 }

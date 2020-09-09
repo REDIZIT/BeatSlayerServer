@@ -11,9 +11,9 @@ namespace BeatSlayerServer.Models.Maps
     /// </summary>
     public class MapsData
     {
-        public string Name { get; set; }
         public string Author { get; set; }
-        [JsonIgnore] public string Trackname => Name + "-" + Author;
+        public string Name { get; set; }
+        [JsonIgnore] public string Trackname => Author + "-" + Name;
 
         public GroupType MapType { get; set; } = GroupType.Author;
 
