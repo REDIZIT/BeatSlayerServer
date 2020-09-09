@@ -1,6 +1,7 @@
 ﻿using BeatSlayerServer.API;
 using BeatSlayerServer.Enums;
 using BeatSlayerServer.Models.Configuration;
+using BeatSlayerServer.Models.Maps;
 using BeatSlayerServer.ProjectManagement;
 using BeatSlayerServer.Services;
 using BeatSlayerServer.Services.MapsManagement;
@@ -54,22 +55,22 @@ namespace BeatSlayerServer.Controllers.Wrappers
         {
             trackname = UrlHelper.Decode(trackname);
 
-            GroupInfoExtended group = mapsService.GetGroup(trackname);
+            MapsData group = mapsService.GetGroup(trackname);
             return Content(JsonConvert.SerializeObject(group));
         }
         public IActionResult GetGroupsExtended(bool intended = false)
         {
-            List<GroupInfoExtended> ls = mapsService.GetGroupsExtended();
+            List<MapsData> ls = mapsService.GetGroupsExtended();
             return Content(JsonConvert.SerializeObject(ls, intended ? Formatting.Indented : Formatting.None));
         }
         public IActionResult GetGroupsExtendedFromDb()
         {
-            List<GroupInfoExtended> ls = mapsService.GetGroupsExtended(true);
+            List<MapsData> ls = mapsService.GetGroupsExtended(true);
             return Content(JsonConvert.SerializeObject(ls, Formatting.Indented));
         }
         public IActionResult GetTutorialGroup()
         {
-            GroupInfoExtended group = mapsService.GetGroup(settings.TutorialTrackname);
+            MapsData group = mapsService.GetGroup(settings.TutorialTrackname);
             return Content(JsonConvert.SerializeObject(group));
         }
 

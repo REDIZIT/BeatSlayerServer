@@ -22,6 +22,7 @@ using BeatSlayerServer.Models.Database.Maps;
 using Microsoft.AspNetCore.Authorization;
 using BeatSlayerServer.Controllers;
 using BeatSlayerServer.Utils.Shop;
+using BeatSlayerServer.Models.Maps;
 
 namespace BeatSlayerServer.Core
 {
@@ -77,7 +78,7 @@ namespace BeatSlayerServer.Core
         public string GetGroupsByDifficulty(int stars)
         {
             string[] tracksFolders = Directory.GetDirectories(settings.TracksFolder).OrderByDescending(c => new DirectoryInfo(c).CreationTime).ToArray();
-            List<GroupInfoExtended> groupInfos = new List<GroupInfoExtended>();
+            List<MapsData> groupInfos = new List<MapsData>();
 
             for (int i = 0; i < tracksFolders.Length; i++)
             {
@@ -85,15 +86,13 @@ namespace BeatSlayerServer.Core
 
                 string[] mapsFolders = Directory.GetDirectories(tracksFolders[i]);
 
-                GroupInfoExtended groupInfo = new GroupInfoExtended()
+                MapsData groupInfo = new MapsData()
                 {
-                    author = trackname.Split('-')[0],
-                    name = trackname.Split('-')[1],
-                    mapsCount = mapsFolders.Length
+                    Author = trackname.Split('-')[0],
+                    Name = trackname.Split('-')[1]
                 };
 
 
-                groupInfo.nicks = new List<string>();
                 foreach (string mapFolder in mapsFolders)
                 {
                     try
@@ -104,15 +103,6 @@ namespace BeatSlayerServer.Core
                         {
                             groupInfos.Add(groupInfo);
                         }
-
-                        //groupInfo.allDownloads += info.downloads;
-                        //groupInfo.allPlays += info.playCount;
-                        //groupInfo.allLikes += info.likes;
-                        //groupInfo.allDislikes += info.dislikes;
-
-                        //if (info.publishTime > groupInfo.updateTime) groupInfo.updateTime = info.publishTime;
-
-                        //groupInfo.nicks.Add(new DirectoryInfo(mapFolder).Name);
                     }
                     catch (Exception err)
                     {

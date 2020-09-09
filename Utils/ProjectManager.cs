@@ -242,16 +242,7 @@ namespace BeatSlayerServer.ProjectManagement
         public string author, name;
         public int mapsCount;
     }
-    public class GroupInfoExtended
-    {
-        public string author, name;
-        public int mapsCount;
 
-        public int allDownloads, allPlays, allLikes, allDislikes;
-        public DateTime updateTime;
-
-        public List<string> nicks;
-    }
     public class MapInfo
     {
         public GroupInfo group;

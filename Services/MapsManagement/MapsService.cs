@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using MapInfo = BeatSlayerServer.ProjectManagement.MapInfo;
 using System.Diagnostics;
 using System.Text;
+using BeatSlayerServer.Models.Maps;
 
 namespace BeatSlayerServer.Services.MapsManagement
 {
@@ -31,37 +32,35 @@ namespace BeatSlayerServer.Services.MapsManagement
 
 
 
-        public GroupInfoExtended GetGroup(string trackname)
+        public MapsData GetGroup(string trackname)
         {
             string[] mapsFolders = Directory.GetDirectories(settings.TracksFolder + "/" + trackname);
-            GroupInfoExtended groupInfo = new GroupInfoExtended()
+            MapsData groupInfo = new MapsData()
             {
-                author = trackname.Split('-')[0],
-                name = trackname.Split('-')[1],
-                mapsCount = mapsFolders.Length
+                Author = trackname.Split('-')[0],
+                Name = trackname.Split('-')[1]
             };
 
 
-            groupInfo.nicks = new List<string>();
             foreach (string mapFolder in mapsFolders)
             {
                 MapInfo info = ProjectManager.GetMapInfo(mapFolder, true);
-                groupInfo.allDownloads += info.downloads;
-                groupInfo.allPlays += info.playCount;
-                groupInfo.allLikes += info.likes;
-                groupInfo.allDislikes += info.dislikes;
+                groupInfo.Downloads += info.downloads;
+                groupInfo.PlayCount += info.playCount;
+                groupInfo.Likes += info.likes;
+                groupInfo.Dislikes += info.dislikes;
 
-                if (info.publishTime > groupInfo.updateTime) groupInfo.updateTime = info.publishTime;
+                if (info.publishTime > groupInfo.UpdateTime) groupInfo.UpdateTime = info.publishTime;
 
-                groupInfo.nicks.Add(new DirectoryInfo(mapFolder).Name);
+                groupInfo.MappersNicks.Add(new DirectoryInfo(mapFolder).Name);
             }
 
             return groupInfo;
         }
-        public List<GroupInfoExtended> GetGroupsExtended()
+        public List<MapsData> GetGroupsExtended()
         {
             string[] tracksFolders = Directory.GetDirectories(settings.TracksFolder).OrderByDescending(c => new DirectoryInfo(c).CreationTime).ToArray();
-            List<GroupInfoExtended> groupInfos = new List<GroupInfoExtended>();
+            List<MapsData> groupInfos = new List<MapsData>();
 
             for (int i = 0; i < tracksFolders.Length; i++)
             {
@@ -69,35 +68,30 @@ namespace BeatSlayerServer.Services.MapsManagement
 
                 string[] mapsFolders = Directory.GetDirectories(tracksFolders[i]);
 
-                GroupInfoExtended groupInfo = new GroupInfoExtended()
+                MapsData groupInfo = new MapsData()
                 {
-                    author = trackname.Split('-')[0],
-                    name = trackname.Split('-')[1],
-                    mapsCount = mapsFolders.Length
+                    Author = trackname.Split('-')[0],
+                    Name = trackname.Split('-')[1]
                 };
 
 
-                groupInfo.nicks = new List<string>();
                 foreach (string mapFolder in mapsFolders)
                 {
                     try
                     {
                         MapInfo info = ProjectManager.GetMapInfo(mapFolder, true);
-                        groupInfo.allDownloads += info.downloads;
-                        groupInfo.allPlays += info.playCount;
-                        groupInfo.allLikes += info.likes;
-                        groupInfo.allDislikes += info.dislikes;
+                        groupInfo.Downloads += info.downloads;
+                        groupInfo.PlayCount += info.playCount;
+                        groupInfo.Likes += info.likes;
+                        groupInfo.Dislikes += info.dislikes;
 
-                        if (info.publishTime > groupInfo.updateTime) groupInfo.updateTime = info.publishTime;
+                        if (info.publishTime > groupInfo.UpdateTime) groupInfo.UpdateTime = info.publishTime;
 
-                        groupInfo.nicks.Add(new DirectoryInfo(mapFolder).Name);
+                        groupInfo.MappersNicks.Add(new DirectoryInfo(mapFolder).Name);
                     }
                     catch (Exception err)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("GetGroupExtended: " + mapFolder);
-                        Console.WriteLine("    " + err);
-                        Console.ForegroundColor = ConsoleColor.White;
+                        throw new Exception($"GetGroupsExtended error with map {trackname}.\n" + err);
                     }
                 }
 
@@ -107,12 +101,12 @@ namespace BeatSlayerServer.Services.MapsManagement
             return groupInfos;
         }
 
-        public List<GroupInfoExtended> GetGroupsExtended(bool fromDb)
+        public List<MapsData> GetGroupsExtended(bool fromDb)
         {
             if (!fromDb) return GetGroupsExtended();
 
 
-            List<GroupInfoExtended> result = new List<GroupInfoExtended>();
+            List<MapsData> result = new List<MapsData>();
 
             Stopwatch w = Stopwatch.StartNew();
 
