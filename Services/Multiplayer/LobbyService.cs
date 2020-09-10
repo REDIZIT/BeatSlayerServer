@@ -234,6 +234,21 @@ namespace BeatSlayerServer.Services.Multiplayer
             Lobbies[lobbyId].IsPlaying = true;
             SendLobbyToAll(lobbyId, "OnMultiplayerGameStart");
         }
+        public void OnPlayerLoaded(int lobbyId, string nick)
+        {
+            Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == nick).Value.IsGameSceneLoaded = true;
+
+            CheckIsAllPlayersLoaded(lobbyId);
+        }
+        private void CheckIsAllPlayersLoaded(int lobbyId)
+        {
+            if (!Lobbies[lobbyId].IsPlaying) return;
+
+            if (Lobbies[lobbyId].Players.All(c => c.Value.IsGameSceneLoaded))
+            {
+                SendLobbyToAll(lobbyId, "OnMultiplayerPlayersLoaded");
+            }
+        }
 
         #endregion
 

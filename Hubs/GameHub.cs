@@ -424,6 +424,10 @@ namespace BeatSlayerServer.Utils
         {
             lobbyService.OnGameStart(lobbyId);
         }
+        public void OnMultiplayerPlayerLoaded(int lobbyId, string nick)
+        {
+            lobbyService.OnPlayerLoaded(lobbyId, nick);
+        }
 
         #endregion
 

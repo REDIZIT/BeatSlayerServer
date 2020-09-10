@@ -27,6 +27,8 @@ namespace BeatSlayerServer.Utils
         public bool IsHost { get; set; }
         public ReadyState State { get; set; }
         public ModEnum Mods { get; set; }
+        public bool IsGameSceneLoaded { get; set; }
+
 
         public enum ReadyState
         {
