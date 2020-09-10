@@ -432,6 +432,10 @@ namespace BeatSlayerServer.Utils
         {
             lobbyService.ScoreUpdate(lobbyId, nick, score, combo);
         }
+        public void OnMultiplayerPlayerFinished(int lobbyId, string nick, ReplayData replay)
+        {
+            lobbyService.PlayerFinished(lobbyId, nick, replay);
+        }
 
         #endregion
 

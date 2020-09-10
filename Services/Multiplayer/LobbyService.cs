@@ -257,6 +257,10 @@ namespace BeatSlayerServer.Services.Multiplayer
 
             SendLobbyToAllExcept(lobbyId, nick, "OnMultiplayerScoreUpdate", nick, score, combo);
         }
+        public void PlayerFinished(int lobbyId, string nick, ReplayData replay)
+        {
+            SendLobbyToAll(lobbyId, "OnMultiplayerPlayerFinished", nick, replay);
+        }
 
         #endregion
 
