@@ -1,5 +1,4 @@
 ﻿using BeatSlayerServer.Enums;
-using BeatSlayerServer.ProjectManagement;
 using Newtonsoft.Json;
 
 namespace BeatSlayerServer.Models.Maps
@@ -16,7 +15,5 @@ namespace BeatSlayerServer.Models.Maps
 
 
         public BasicMapData() { }
-
-        
     }
 }

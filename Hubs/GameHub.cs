@@ -22,6 +22,7 @@ using BeatSlayerServer.Services.Multiplayer;
 using System.Linq;
 using BeatSlayerServer.Enums.Game;
 using BeatSlayerServer.Models.Multiplayer.Chat;
+using BeatSlayerServer.Models.Maps;
 
 namespace BeatSlayerServer.Utils
 {
@@ -366,7 +367,7 @@ namespace BeatSlayerServer.Utils
 
 
 
-        public void ChangeLobbyMap(int lobbyId, MapData map, DifficultyData diff)
+        public void ChangeLobbyMap(int lobbyId, BasicMapData map, DifficultyData diff)
         {
             lobbyService.ChangeMap(lobbyId, map, diff);
         }
@@ -417,6 +418,14 @@ namespace BeatSlayerServer.Utils
 
         #endregion
 
+        #region Multiplayer
+
+        public void OnMultiplayerStartGame(int lobbyId)
+        {
+            lobbyService.OnGameStart(lobbyId);
+        }
+
+        #endregion
 
 
         private string GetIp(HttpContext httpContext)

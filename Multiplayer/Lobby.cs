@@ -2,6 +2,7 @@
 using BeatSlayerServer.Enums.Game;
 using BeatSlayerServer.Extensions;
 using BeatSlayerServer.Models.Database;
+using BeatSlayerServer.Models.Maps;
 using BeatSlayerServer.Utils;
 using System;
 using System.Collections.Generic;
@@ -17,9 +18,12 @@ namespace BeatSlayerServer.Models.Multiplayer
         public Dictionary<int, LobbyPlayer> Players { get; set; }
         public List<string> PlayersIds { get; set; }
 
-        public MapData SelectedMap { get; set; }
+        public BasicMapData SelectedMap { get; set; }
         public DifficultyData SelectedDifficulty { get; set; }
+
+
         public bool IsHostChangingMap { get; set; }
+        public bool IsPlaying { get; set; }
 
 
         public const int MAX_PLAYERS = 10;
@@ -56,7 +60,7 @@ namespace BeatSlayerServer.Models.Multiplayer
             PlayersIds.RemoveAll(c => c == player.ConnectionId);
         }
 
-        public void ChangeMap(MapData map, DifficultyData diff)
+        public void ChangeMap(BasicMapData map, DifficultyData diff)
         {
             IsHostChangingMap = false;
             SelectedMap = map;

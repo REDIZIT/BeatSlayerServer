@@ -1,6 +1,6 @@
 ﻿using BeatSlayerServer.Dtos.Mapping;
 using BeatSlayerServer.Enums.Game;
-using BeatSlayerServer.Models.Database;
+using BeatSlayerServer.Models.Maps;
 using BeatSlayerServer.Models.Multiplayer;
 using BeatSlayerServer.Models.Multiplayer.Chat;
 using BeatSlayerServer.Utils;
@@ -23,10 +23,6 @@ namespace BeatSlayerServer.Services.Multiplayer
         {
             this.connService = connService;
             this.hub = hub;
-        }
-        private void Log(string message)
-        {
-            Console.WriteLine(message);
         }
 
         public void OnPlayerDisconnected(ConnectedPlayer player)
@@ -138,7 +134,7 @@ namespace BeatSlayerServer.Services.Multiplayer
             }
         }
 
-        public void ChangeMap(int lobbyId, MapData map, DifficultyData diff)
+        public void ChangeMap(int lobbyId, BasicMapData map, DifficultyData diff)
         {
             Lobbies[lobbyId].ChangeMap(map, diff);
 
@@ -231,7 +227,15 @@ namespace BeatSlayerServer.Services.Multiplayer
 
 
 
+        #region Multiplayer
 
+        public void OnGameStart(int lobbyId)
+        {
+            Lobbies[lobbyId].IsPlaying = true;
+            SendLobbyToAll(lobbyId, "OnMultiplayerGameStart");
+        }
+
+        #endregion
 
 
 
