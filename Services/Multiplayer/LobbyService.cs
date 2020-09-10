@@ -249,6 +249,14 @@ namespace BeatSlayerServer.Services.Multiplayer
                 SendLobbyToAll(lobbyId, "OnMultiplayerPlayersLoaded");
             }
         }
+        public void ScoreUpdate(int lobbyId, string nick, float score, int combo)
+        {
+            LobbyPlayer player = Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == nick).Value;
+            player.Score = score;
+            player.Combo = combo;
+
+            SendLobbyToAllExcept(lobbyId, nick, "OnMultiplayerScoreUpdate", nick, score, combo);
+        }
 
         #endregion
 
