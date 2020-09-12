@@ -1,7 +1,6 @@
 ﻿using BeatSlayerServer.Dtos.Mapping;
 using BeatSlayerServer.Enums.Game;
 using BeatSlayerServer.Extensions;
-using BeatSlayerServer.Models.Database;
 using BeatSlayerServer.Models.Maps;
 using BeatSlayerServer.Utils;
 using System;
@@ -20,6 +19,9 @@ namespace BeatSlayerServer.Models.Multiplayer
 
         public BasicMapData SelectedMap { get; set; }
         public DifficultyData SelectedDifficulty { get; set; }
+        //public int MapDuration { get; set; }
+        //public float CurrentSecond { get; set; }
+
 
 
         public bool IsHostChangingMap { get; set; }

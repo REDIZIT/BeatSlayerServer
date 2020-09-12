@@ -1,5 +1,6 @@
 ﻿using BeatSlayerServer.Dtos.Mapping;
 using BeatSlayerServer.Enums.Game;
+using BeatSlayerServer.Models;
 using BeatSlayerServer.Models.Maps;
 using BeatSlayerServer.Models.Multiplayer;
 using BeatSlayerServer.Models.Multiplayer.Chat;
@@ -36,12 +37,7 @@ namespace BeatSlayerServer.Services.Multiplayer
             }
         }
 
-
-        public IEnumerable<LobbyPlayer> GetPlayersInLobby(int lobbyId)
-        {
-            return Lobbies[lobbyId].Players.Values;
-        }
-
+        #region Lobbies (get/create/join/leave)
 
         public List<LobbyDTO> GetLobbies()
         {
@@ -67,11 +63,16 @@ namespace BeatSlayerServer.Services.Multiplayer
                 }
             }
 
-            throw new System.Exception("Not found space for new lobby");
+            throw new Exception("Not found space for new lobby");
         }
 
         public LobbyDTO JoinLobby(ConnectedPlayer player, int lobbyId)
         {
+            if (Lobbies.Any(c => c.Value.Players.Any(c => c.Value.Player == player)))
+            {
+                return null;
+            }
+
             Lobby lobby = Lobbies[lobbyId];
             LobbyPlayer lobbyPlayer = lobby.Join(player);
 
@@ -134,6 +135,10 @@ namespace BeatSlayerServer.Services.Multiplayer
             }
         }
 
+        #endregion
+
+        #region Change map
+
         public void ChangeMap(int lobbyId, BasicMapData map, DifficultyData diff)
         {
             Lobbies[lobbyId].ChangeMap(map, diff);
@@ -153,6 +158,8 @@ namespace BeatSlayerServer.Services.Multiplayer
 
             SendLobbyToAll(lobbyId, "OnHostCancelChangingMap");
         }
+        
+        #endregion
 
 
         public void ChangeMods(int lobbyId, string nick, ModEnum mods)
@@ -233,6 +240,11 @@ namespace BeatSlayerServer.Services.Multiplayer
         {
             Lobbies[lobbyId].IsPlaying = true;
             SendLobbyToAll(lobbyId, "OnMultiplayerGameStart");
+
+            foreach (var player in Lobbies[lobbyId].Players.Values)
+            {
+                ChangeReadyState(lobbyId, player.Player.Nick, LobbyPlayer.ReadyState.Playing);
+            }
         }
         public void OnPlayerLoaded(int lobbyId, string nick)
         {
@@ -260,10 +272,10 @@ namespace BeatSlayerServer.Services.Multiplayer
         public void PlayerFinished(int lobbyId, string nick, ReplayData replay)
         {
             SendLobbyToAll(lobbyId, "OnMultiplayerPlayerFinished", nick, replay);
+            ChangeReadyState(lobbyId, nick, LobbyPlayer.ReadyState.NotReady);
         }
 
         #endregion
-
 
 
 
@@ -283,10 +295,6 @@ namespace BeatSlayerServer.Services.Multiplayer
             if (!Lobbies.ContainsKey(lobbyId)) return;
 
             string connId = Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == exceptNick).Value.Player.ConnectionId;
-
-            //List<string> playersToPing = new List<string>();
-            //playersToPing.AddRange(Lobbies[lobbyId].PlayersIds);
-            //playersToPing.Remove(connId);
 
             List<string> playersToPing = Lobbies[lobbyId].Players.Values.Where(c => c.Player.Nick != exceptNick).Select(c => c.Player.ConnectionId).ToList();
 

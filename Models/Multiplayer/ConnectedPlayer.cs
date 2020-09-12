@@ -36,7 +36,7 @@ namespace BeatSlayerServer.Utils
 
         public enum ReadyState
         {
-            NotReady, Ready, Downloading
+            NotReady, Ready, Downloading, Playing
         }
 
 
