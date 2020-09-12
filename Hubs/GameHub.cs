@@ -364,7 +364,10 @@ namespace BeatSlayerServer.Utils
         {
             lobbyService.Kick(lobbyId, nick);
         }
-
+        public void RenameLobby(int lobbyId, string lobbyName)
+        {
+            lobbyService.Rename(lobbyId, lobbyName);
+        }
 
 
         public void ChangeLobbyMap(int lobbyId, BasicMapData map, DifficultyData diff)

@@ -1,6 +1,5 @@
 ﻿using BeatSlayerServer.Dtos.Mapping;
 using BeatSlayerServer.Enums.Game;
-using BeatSlayerServer.Models;
 using BeatSlayerServer.Models.Maps;
 using BeatSlayerServer.Models.Multiplayer;
 using BeatSlayerServer.Models.Multiplayer.Chat;
@@ -37,7 +36,7 @@ namespace BeatSlayerServer.Services.Multiplayer
             }
         }
 
-        #region Lobbies (get/create/join/leave)
+        #region Lobbies (get/create/join/leave/rename)
 
         public List<LobbyDTO> GetLobbies()
         {
@@ -133,6 +132,11 @@ namespace BeatSlayerServer.Services.Multiplayer
                 Console.WriteLine("Destroy lobby");
                 Lobbies.Remove(lobbyId);
             }
+        }
+        public void Rename(int lobbyId, string lobbyName)
+        {
+            Lobbies[lobbyId].LobbyName = lobbyName;
+            SendLobbyToAll(lobbyId, "OnLobbyRename", lobbyName);
         }
 
         #endregion
