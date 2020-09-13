@@ -281,11 +281,29 @@ namespace BeatSlayerServer.Services.Multiplayer
         {
             SendLobbyToAll(lobbyId, "OnMultiplayerPlayerFinished", nick, replay);
             ChangeReadyState(lobbyId, nick, LobbyPlayer.ReadyState.NotReady);
+
+            UpdateLobbyPlayStatus(lobbyId);
         }
         public void PlayerLeft(int lobbyId, string nick)
         {
             SendLobbyToAll(lobbyId, "OnMultiplayerPlayerLeft", nick);
             ChangeReadyState(lobbyId, nick, LobbyPlayer.ReadyState.NotReady);
+
+            UpdateLobbyPlayStatus(lobbyId);
+        }
+
+        private void UpdateLobbyPlayStatus(int lobbyId)
+        {
+            Lobby lobby = Lobbies[lobbyId];
+
+            bool prevStatus = lobby.IsPlaying;
+
+            lobby.IsPlaying = lobby.Players.Any(p => p.Value.State == LobbyPlayer.ReadyState.Playing);
+
+            if (lobby.IsPlaying != prevStatus)
+            {
+                SendLobbyToAll(lobbyId, "OnLobbyPlayStatusChanged", lobby.IsPlaying);
+            }
         }
 
         #endregion
