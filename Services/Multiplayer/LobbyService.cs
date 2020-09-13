@@ -230,7 +230,7 @@ namespace BeatSlayerServer.Services.Multiplayer
         }
         public void OnLobbyPlayerStopTyping(int lobbyId, string nick)
         {
-            SendLobbyToAllExcept(lobbyId, nick, "OnLobbyPlayerStopTyping", nick);
+            SendLobbyToAll(lobbyId, nick, "OnLobbyPlayerStopTyping", nick);
         }
 
 
@@ -272,6 +272,10 @@ namespace BeatSlayerServer.Services.Multiplayer
             player.Combo = combo;
 
             SendLobbyToAllExcept(lobbyId, nick, "OnMultiplayerScoreUpdate", nick, score, combo);
+        }
+        public void OnMultiplayerPlayerAliveChanged(int lobbyId, string nick, bool isAlive)
+        {
+            SendLobbyToAllExcept(lobbyId, nick, "OnMultiplayerPlayerAliveChanged", nick, isAlive);
         }
         public void PlayerFinished(int lobbyId, string nick, ReplayData replay)
         {

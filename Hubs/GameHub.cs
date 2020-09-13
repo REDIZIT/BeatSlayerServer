@@ -435,6 +435,10 @@ namespace BeatSlayerServer.Utils
         {
             lobbyService.ScoreUpdate(lobbyId, nick, score, combo);
         }
+        public void OnMultiplayerPlayerAliveChanged(int lobbyId, string nick, bool isAlive)
+        {
+            lobbyService.OnMultiplayerPlayerAliveChanged(lobbyId, nick, isAlive);
+        }
         public void OnMultiplayerPlayerFinished(int lobbyId, string nick, ReplayData replay)
         {
             lobbyService.PlayerFinished(lobbyId, nick, replay);
