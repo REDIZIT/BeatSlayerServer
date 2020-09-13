@@ -77,7 +77,6 @@ namespace BeatSlayerServer.Utils
             return base.OnDisconnectedAsync(err);
         }
 
-
         // === Modules === //
         #region Chat
 
@@ -430,6 +429,12 @@ namespace BeatSlayerServer.Utils
         public void OnMultiplayerPlayerLoaded(int lobbyId, string nick)
         {
             lobbyService.OnPlayerLoaded(lobbyId, nick);
+        }
+        public bool OnMultiplayerAreAllPlayersLoaded(int lobbyId)
+        {
+            bool result = lobbyService.AreAllPlayersLoaded(lobbyId);
+            Console.WriteLine("Are all players loaded? " + result);
+            return result;
         }
         public void OnMultiplayerScoreUpdate(int lobbyId, string nick, float score, int combo)
         {

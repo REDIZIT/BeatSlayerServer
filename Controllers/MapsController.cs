@@ -33,6 +33,7 @@ namespace BeatSlayerServer.Controllers.Wrappers
 
 
         [HttpPost]
+        [RequestSizeLimit(64 * 1024 * 1024)]
         public async Task<IActionResult> Upload(IFormFile file)
         {
             OperationResult op = await publishService.PublishProject(file);

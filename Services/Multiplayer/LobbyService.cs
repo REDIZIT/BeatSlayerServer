@@ -13,7 +13,7 @@ namespace BeatSlayerServer.Services.Multiplayer
 {
     public class LobbyService
     {
-        public Dictionary<int, Lobby> Lobbies { get;  set; } = new Dictionary<int, Lobby>();
+        public Dictionary<int, Lobby> Lobbies { get; set; } = new Dictionary<int, Lobby>();
 
         private readonly ConnectionService connService;
         private readonly IHubContext<GameHub> hub;
@@ -162,7 +162,7 @@ namespace BeatSlayerServer.Services.Multiplayer
 
             SendLobbyToAll(lobbyId, "OnHostCancelChangingMap");
         }
-        
+
         #endregion
 
 
@@ -187,7 +187,7 @@ namespace BeatSlayerServer.Services.Multiplayer
                 player.IsHost = player.Player.Nick == nick;
             }
 
-            SendLobbyToAllExcept(lobbyId, prevHost, "OnLobbyHostChange", new LobbyPlayerDTO(Lobbies[lobbyId].Players.First(c => c.Value.IsHost).Value));
+            SendLobbyToAll(lobbyId, "OnLobbyHostChange", new LobbyPlayerDTO(Lobbies[lobbyId].Players.First(c => c.Value.IsHost).Value));
         }
         public void Kick(int lobbyId, string nick)
         {
@@ -252,16 +252,22 @@ namespace BeatSlayerServer.Services.Multiplayer
         }
         public void OnPlayerLoaded(int lobbyId, string nick)
         {
+            Console.WriteLine(nick + " loaded");
             Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == nick).Value.IsGameSceneLoaded = true;
 
             CheckIsAllPlayersLoaded(lobbyId);
+        }
+        public bool AreAllPlayersLoaded(int lobbyId)
+        {
+            return Lobbies[lobbyId].Players.All(c => c.Value.IsGameSceneLoaded);
         }
         private void CheckIsAllPlayersLoaded(int lobbyId)
         {
             if (!Lobbies[lobbyId].IsPlaying) return;
 
-            if (Lobbies[lobbyId].Players.All(c => c.Value.IsGameSceneLoaded))
+            if (AreAllPlayersLoaded(lobbyId))
             {
+                Console.WriteLine("All are loaded");
                 SendLobbyToAll(lobbyId, "OnMultiplayerPlayersLoaded");
             }
         }
@@ -279,6 +285,8 @@ namespace BeatSlayerServer.Services.Multiplayer
         }
         public void PlayerFinished(int lobbyId, string nick, ReplayData replay)
         {
+            Console.WriteLine(nick + " finished");
+
             SendLobbyToAll(lobbyId, "OnMultiplayerPlayerFinished", nick, replay);
             ChangeReadyState(lobbyId, nick, LobbyPlayer.ReadyState.NotReady);
 
@@ -286,6 +294,8 @@ namespace BeatSlayerServer.Services.Multiplayer
         }
         public void PlayerLeft(int lobbyId, string nick)
         {
+            Console.WriteLine(nick + " left");
+
             SendLobbyToAll(lobbyId, "OnMultiplayerPlayerLeft", nick);
             ChangeReadyState(lobbyId, nick, LobbyPlayer.ReadyState.NotReady);
 
