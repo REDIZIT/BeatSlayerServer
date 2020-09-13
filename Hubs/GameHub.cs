@@ -443,6 +443,10 @@ namespace BeatSlayerServer.Utils
         {
             lobbyService.PlayerFinished(lobbyId, nick, replay);
         }
+        public void OnMultiplayerPlayerLeft(int lobbyId, string nick)
+        {
+            lobbyService.PlayerLeft(lobbyId, nick);
+        }
 
         #endregion
 
