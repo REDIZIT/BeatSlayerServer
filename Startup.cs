@@ -16,11 +16,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using BeatSlayerServer.Hubs;
 using BeatSlayerServer.Services.Dashboard;
 using BeatSlayerServer.Services.Messaging.Discord;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using InEditor.Analyze;
 using Serilog;
 using BeatSlayerServer.Services.Multiplayer;
+using System;
 
 namespace BeatSlayerServer
 {
@@ -60,7 +60,11 @@ namespace BeatSlayerServer
                 .WithOrigins()
                 .AllowCredentials()));
 
-            services.AddSignalR().AddMessagePackProtocol();
+            services.AddSignalR((o) =>
+            {
+                o.KeepAliveInterval = TimeSpan.FromMinutes(10);
+                o.ClientTimeoutInterval = o.KeepAliveInterval * 2;
+            }).AddMessagePackProtocol();
 
 
             services.Configure<KestrelServerOptions>(options =>

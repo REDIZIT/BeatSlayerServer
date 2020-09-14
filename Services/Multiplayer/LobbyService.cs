@@ -267,7 +267,6 @@ namespace BeatSlayerServer.Services.Multiplayer
 
             if (AreAllPlayersLoaded(lobbyId))
             {
-                Console.WriteLine("All are loaded");
                 SendLobbyToAll(lobbyId, "OnMultiplayerPlayersLoaded");
             }
         }
@@ -285,8 +284,6 @@ namespace BeatSlayerServer.Services.Multiplayer
         }
         public void PlayerFinished(int lobbyId, string nick, ReplayData replay)
         {
-            Console.WriteLine(nick + " finished");
-
             SendLobbyToAll(lobbyId, "OnMultiplayerPlayerFinished", nick, replay);
             ChangeReadyState(lobbyId, nick, LobbyPlayer.ReadyState.NotReady);
 
@@ -294,8 +291,6 @@ namespace BeatSlayerServer.Services.Multiplayer
         }
         public void PlayerLeft(int lobbyId, string nick)
         {
-            Console.WriteLine(nick + " left");
-
             SendLobbyToAll(lobbyId, "OnMultiplayerPlayerLeft", nick);
             ChangeReadyState(lobbyId, nick, LobbyPlayer.ReadyState.NotReady);
 
