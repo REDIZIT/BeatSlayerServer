@@ -8,6 +8,22 @@
         public string TargetNick { get; set; }
 
         public string RequesterNick { get; set; }
+
+        /// <summary>String representation of object to save</summary>
+        //public string ExtendedValue { get; set; }
+        
+
+
+        //public static NotificationInfo CoinsTransfer(string targetNick, string payerNick, int count)
+        //{
+        //    return new NotificationInfo()
+        //    {
+        //        TargetNick = targetNick,
+        //        RequesterNick = payerNick,
+        //        Type = NotificationType.CoinsTransfer/*,*/
+        //        //ExtendedValue = count.ToString()
+        //    };
+        //}
     }
 
     public enum NotificationType
@@ -16,5 +32,6 @@
         FriendInviteAccept,
         FriendInviteReject,
         MapModeration,
+        CoinsTransfer
     }
 }

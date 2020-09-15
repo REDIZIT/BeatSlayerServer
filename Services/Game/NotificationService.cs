@@ -2,9 +2,6 @@
 using BeatSlayerServer.Utils.Database;
 using BeatSlayerServer.Utils.Notifications;
 using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace BeatSlayerServer.Services.Game
@@ -22,16 +19,20 @@ namespace BeatSlayerServer.Services.Game
             this.connectionService = connectionService;
         }
 
-        public void InviteFriend(string targetNick, string requesterNick)
-        {
-            if (!ctx.Players.Any(c => c.Nick == targetNick)) return;
-            if (!ctx.Players.Any(c => c.Nick == requesterNick)) return;
 
-            SendFriendInvite(targetNick, requesterNick);
+        public void SendFriendInvite(string targetPlayer, string requesterPlayer)
+        {
+            NotificationInfo notif = new NotificationInfo()
+            {
+                TargetNick = targetPlayer,
+                RequesterNick = requesterPlayer,
+                Type = NotificationType.FriendInvite
+            };
+
+            Send(notif);
         }
 
-        /// Really bad, but there is circular dependency
-        /// I'm scared..
+
         public void AcceptFriendInvite(string nick, int id)
         {
             if (!accountService.TryFindAccount(nick, out Account acc)) return;
@@ -48,10 +49,10 @@ namespace BeatSlayerServer.Services.Game
 
 
             Remove(nick, id);
-            Send(not.RequesterNick, new NotificationInfo()
+            Send(new NotificationInfo()
             {
-                RequesterNick = not.TargetNick,
                 TargetNick = not.RequesterNick,
+                RequesterNick = not.TargetNick,
                 Type = NotificationType.FriendInviteAccept
             });
         }
@@ -63,10 +64,10 @@ namespace BeatSlayerServer.Services.Game
 
 
             Remove(nick, id);
-            Send(not.RequesterNick, new NotificationInfo()
+            Send(new NotificationInfo()
             {
-                RequesterNick = not.TargetNick,
                 TargetNick = not.RequesterNick,
+                RequesterNick = not.TargetNick,
                 Type = NotificationType.FriendInviteReject
             });
         }
@@ -84,9 +85,9 @@ namespace BeatSlayerServer.Services.Game
 
 
 
-        public void Send(string nick, NotificationInfo notification)
+        public void Send(NotificationInfo notification)
         {
-            if (!accountService.TryFindAccount(nick, out Account acc)) return;
+            if (!accountService.TryFindAccount(notification.TargetNick, out Account acc)) return;
 
 
 
@@ -94,7 +95,7 @@ namespace BeatSlayerServer.Services.Game
             acc.Notifications.Add(notification);
             ctx.SaveChanges();
 
-            if(connectionService.TryFindPlayer(nick, out ConnectedPlayer conn))
+            if(connectionService.TryFindPlayer(notification.TargetNick, out ConnectedPlayer conn))
             {
                 connectionService.hub.Clients.Client(conn.ConnectionId).SendAsync("Notification_OnSend", notification);
             }
@@ -112,20 +113,6 @@ namespace BeatSlayerServer.Services.Game
         {
             notification = ctx.Notifications.FirstOrDefault(c => c.Id == id);
             return notification != null;
-        }
-
-
-
-        public void SendFriendInvite(string toPlayer, string reqPlayer)
-        {
-            NotificationInfo notif = new NotificationInfo()
-            {
-                Type = NotificationType.FriendInvite,
-                TargetNick = toPlayer,
-                RequesterNick = reqPlayer
-            };
-
-            Send(toPlayer, notif);
         }
     }
 }

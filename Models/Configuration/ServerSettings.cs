@@ -30,5 +30,7 @@ namespace BeatSlayerServer.Models.Configuration
         public ModsSettings Mods { get; set; }
         public PurchasesSettings Shop { get; set; }
         public BanSettings Bans { get; set; }
+
+        public EventSettings Event { get; set; }
     }
 }

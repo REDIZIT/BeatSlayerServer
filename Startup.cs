@@ -102,6 +102,8 @@ namespace BeatSlayerServer
             services.AddTransient<RankingService>();
             services.AddTransient<NotificationService>();
 
+            services.AddSingleton<EventService>();
+
             services.AddTransient<SimulationService>();
 
             services.AddTransient<DashboardService>();

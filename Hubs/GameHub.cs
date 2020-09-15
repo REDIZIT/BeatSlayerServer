@@ -39,12 +39,14 @@ namespace BeatSlayerServer.Utils
         private readonly ShopService shopService;
         private readonly LobbyService lobbyService;
 
+        private readonly EventService eventService;
+
         private readonly DashboardService dashboardService;
         private readonly ServerSettings settings;
 
         public GameHub(MyDbContext context, ILogger<GameHub> logger, SettingsWrapper wrapper, ConnectionService connectionService, AccountService accountService,
             ChatService chatService, RankingService rankingService, NotificationService notificationService, ShopService shopService,
-            DashboardService dashboardService, LobbyService lobbyService)
+            DashboardService dashboardService, LobbyService lobbyService, EventService eventService)
         {
             this.context = context;
             this.logger = logger;
@@ -57,6 +59,8 @@ namespace BeatSlayerServer.Utils
             this.notificationService = notificationService;
             this.shopService = shopService;
             this.lobbyService = lobbyService;
+
+            this.eventService = eventService;
 
             this.dashboardService = dashboardService;
         }
@@ -241,7 +245,7 @@ namespace BeatSlayerServer.Utils
 
         public void Friends_InviteFriend(string targetNick, string requesterNick)
         {
-            notificationService.InviteFriend(targetNick, requesterNick);
+            notificationService.SendFriendInvite(targetNick, requesterNick);
         }
         public void Friends_AcceptInvite(string nick, int id)
         {
@@ -446,6 +450,7 @@ namespace BeatSlayerServer.Utils
         }
         public void OnMultiplayerPlayerFinished(int lobbyId, string nick, ReplayData replay)
         {
+            eventService.OnPlayerPlay(nick);
             lobbyService.PlayerFinished(lobbyId, nick, replay);
         }
         public void OnMultiplayerPlayerLeft(int lobbyId, string nick)

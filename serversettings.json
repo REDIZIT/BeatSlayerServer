@@ -192,5 +192,10 @@
         "Cost": 30000
       }
     ]
+  },
+
+  "Event": {
+    "EventStartTime": "2020-09-07T00:03:00Z",
+    "EventEndTime": "2020-09-13T00:03:00Z"
   }
 }
