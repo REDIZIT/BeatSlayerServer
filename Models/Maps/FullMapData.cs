@@ -29,7 +29,7 @@ namespace BeatSlayerServer.Models.Maps
             MapperNick = projectMapInfo.nick;
             IsApproved = projectMapInfo.approved;
 
-            downloads = projectMapInfo.Downloads;
+            downloads = projectMapInfo.downloads;
 
             Difficulties = projectMapInfo.difficulties;
         }

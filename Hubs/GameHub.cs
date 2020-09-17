@@ -340,6 +340,10 @@ namespace BeatSlayerServer.Utils
         {
             return lobbyService.GetLobbies();
         }
+        public LobbyDTO GetLobby(int lobbyId)
+        {
+            return lobbyService.GetLobby(lobbyId);
+        }
         public LobbyDTO CreateLobby(string creatorNick)
         {
             // TODO: Make search by id or better by instance
@@ -371,6 +375,10 @@ namespace BeatSlayerServer.Utils
         {
             lobbyService.Rename(lobbyId, lobbyName);
         }
+        public void ChangeLobbyPassword(int lobbyId, string password)
+        {
+            lobbyService.ChangePassword(lobbyId, password);
+        }
 
 
         public void ChangeLobbyMap(int lobbyId, BasicMapData map, DifficultyData diff)
@@ -380,6 +388,10 @@ namespace BeatSlayerServer.Utils
         public void HostStartChangingMap(int lobbyId)
         {
             lobbyService.HostStartChangingMap(lobbyId);
+        }
+        public void HostCancelChangingMap(int lobbyId)
+        {
+            lobbyService.HostCancelChangingMap(lobbyId);
         }
         public void ChangeLobbyMods(int lobbyId, string nick, ModEnum mods)
         {

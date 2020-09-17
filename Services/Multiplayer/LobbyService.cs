@@ -48,6 +48,10 @@ namespace BeatSlayerServer.Services.Multiplayer
 
             return result;
         }
+        public LobbyDTO GetLobby(int lobbyId)
+        {
+            return new LobbyDTO(Lobbies[lobbyId]);
+        }
         public Lobby CreateLobby(ConnectedPlayer player)
         {
             // Search for free space for new lobby
@@ -137,6 +141,11 @@ namespace BeatSlayerServer.Services.Multiplayer
         {
             Lobbies[lobbyId].LobbyName = lobbyName;
             SendLobbyToAll(lobbyId, "OnLobbyRename", lobbyName);
+        }
+        public void ChangePassword(int lobbyId, string password)
+        {
+            Lobbies[lobbyId].Password = password;
+            SendLobbyToAll(lobbyId, "OnLobbyChangePassword", password);
         }
 
         #endregion
@@ -230,7 +239,7 @@ namespace BeatSlayerServer.Services.Multiplayer
         }
         public void OnLobbyPlayerStopTyping(int lobbyId, string nick)
         {
-            SendLobbyToAll(lobbyId, nick, "OnLobbyPlayerStopTyping", nick);
+            SendLobbyToAll(lobbyId, "OnLobbyPlayerStopTyping", nick);
         }
 
 
@@ -247,6 +256,7 @@ namespace BeatSlayerServer.Services.Multiplayer
 
             foreach (var player in Lobbies[lobbyId].Players.Values)
             {
+                player.IsGameSceneLoaded = false;
                 ChangeReadyState(lobbyId, player.Player.Nick, LobbyPlayer.ReadyState.Playing);
             }
         }
@@ -322,6 +332,8 @@ namespace BeatSlayerServer.Services.Multiplayer
         {
             if (!Lobbies.ContainsKey(lobbyId)) return;
 
+            Console.WriteLine("Send: " + methodName);
+
             List<string> playersToPing = Lobbies[lobbyId].Players.Values.Select(c => c.Player.ConnectionId).ToList();
 
             connService.InvokeAsync(playersToPing, methodName, args);
@@ -329,6 +341,8 @@ namespace BeatSlayerServer.Services.Multiplayer
         private void SendLobbyToAllExcept(int lobbyId, string exceptNick, string methodName, params object[] args)
         {
             if (!Lobbies.ContainsKey(lobbyId)) return;
+
+            Console.WriteLine("Send except: " + methodName);
 
             string connId = Lobbies[lobbyId].Players.First(c => c.Value.Player.Nick == exceptNick).Value.Player.ConnectionId;
 

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BeatSlayerServer.Controllers.Wrappers
@@ -20,10 +21,12 @@ namespace BeatSlayerServer.Controllers.Wrappers
         private readonly PublishService publishService;
 
         private readonly ILogger<MapsController> logger;
+        private readonly MyDbContext ctx;
 
 
-        public MapsController(ILogger<MapsController> logger,SettingsWrapper wrapper, MapsService mapsService, PublishService publishService)
+        public MapsController(ILogger<MapsController> logger, MyDbContext ctx, SettingsWrapper wrapper, MapsService mapsService, PublishService publishService)
         {
+            this.ctx = ctx;
             this.logger = logger;
 
             settings = wrapper.settings;
@@ -50,6 +53,7 @@ namespace BeatSlayerServer.Controllers.Wrappers
             trackname = trackname.Replace("%amp%", "&");
             nick = nick.Replace("%amp%", "&");
 
+
             string filepath = settings.TracksFolder + "/" + trackname + "/" + nick + "/" + trackname + ".bsz";
             if (!System.IO.File.Exists(filepath))
             {
@@ -59,10 +63,17 @@ namespace BeatSlayerServer.Controllers.Wrappers
 
             logger.LogInformation("[DOWNLOAD MAP] {trackname} by {nick}", trackname, nick);
 
-            
+            // Set statistics
             var mapInfo = ProjectManager.GetMapInfo(trackname, nick);
             mapInfo.downloads++;
             ProjectManager.SetMapInfo(mapInfo);
+            // Set db statistics
+            //foreach (var diff in ctx.Groups.First(c => c.Author == author && c.Name == name).Maps.First(c => c.Nick == nick).Difficulties)
+            //{
+            //    diff.Downloads++;
+            //}
+            //ctx.SaveChanges();
+            
 
             byte[] arr = System.IO.File.ReadAllBytes(filepath);
             return File(arr, System.Net.Mime.MediaTypeNames.Application.Octet, trackname + ".bsz");

@@ -1,5 +1,4 @@
 ﻿using BeatSlayerServer.Dtos.Mapping;
-using BeatSlayerServer.Models.Database;
 using BeatSlayerServer.Models.Maps;
 using BeatSlayerServer.Utils;
 using System.Collections.Generic;
@@ -10,6 +9,8 @@ namespace BeatSlayerServer.Models.Multiplayer
     {
         public string Name { get; set; }
         public int Id { get; set; }
+        public string Password { get; set; }
+        public bool HasPassword => !string.IsNullOrWhiteSpace(Password);
 
         public BasicMapData SelectedMap { get; set; }
         public DifficultyData SelectedDifficulty { get; set; }
@@ -21,6 +22,7 @@ namespace BeatSlayerServer.Models.Multiplayer
         {
             Name = lobby.LobbyName;
             Id = lobby.LobbyId;
+            Password = lobby.Password;
 
             Players = new List<LobbyPlayerDTO>();
             foreach (var player in lobby.Players)

@@ -13,6 +13,8 @@ namespace BeatSlayerServer.Models.Multiplayer
     {
         public string LobbyName { get; set; }
         public int LobbyId { get; set; }
+        public string Password { get; set; }
+        public bool HasPassword => !string.IsNullOrWhiteSpace(Password);
 
         public Dictionary<int, LobbyPlayer> Players { get; set; }
         public List<string> PlayersIds { get; set; }
