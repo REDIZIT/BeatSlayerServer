@@ -47,6 +47,7 @@ namespace BeatSlayerServer.Services.MapsManagement
                 MapInfo info = ProjectManager.GetMapInfo(mapFolder, true);
                 groupInfo.Downloads += info.downloads;
                 groupInfo.PlayCount += info.playCount;
+                groupInfo.Launches += info.LaunchesCount;
                 groupInfo.Likes += info.likes;
                 groupInfo.Dislikes += info.dislikes;
 
@@ -82,8 +83,10 @@ namespace BeatSlayerServer.Services.MapsManagement
                         MapInfo info = ProjectManager.GetMapInfo(mapFolder, true);
                         groupInfo.Downloads += info.downloads;
                         groupInfo.PlayCount += info.playCount;
+                        groupInfo.Launches += info.LaunchesCount;
                         groupInfo.Likes += info.likes;
                         groupInfo.Dislikes += info.dislikes;
+                        if (!groupInfo.IsApproved) groupInfo.IsApproved = info.approved;
 
                         if (info.publishTime > groupInfo.UpdateTime) groupInfo.UpdateTime = info.publishTime;
 

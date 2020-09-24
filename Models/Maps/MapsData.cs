@@ -16,11 +16,13 @@ namespace BeatSlayerServer.Models.Maps
         [JsonIgnore] public string Trackname => Author + "-" + Name;
 
         public GroupType MapType { get; set; } = GroupType.Author;
+        public bool IsApproved { get; set; }
 
 
 
         public int Downloads { get; set; }
         public int PlayCount { get; set; }
+        public int Launches { get; set; }
         public int Likes { get; set; }
         public int Dislikes { get; set; }
 

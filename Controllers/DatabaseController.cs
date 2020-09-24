@@ -168,61 +168,50 @@ namespace BeatSlayerServer.Controllers.Wrappers
                 return Content("Success");
             }
         }
-        public async Task<IActionResult> SetDifficultyStatistics(string trackname, string nick, int difficultyId, string key)
+        public async Task<IActionResult> SetDifficultyStatistics(string trackname, string nick, int difficultyId, DifficultyStatisticsKey key)
         {
-            Console.WriteLine("SetDifficultyStatistics for " + trackname + " by " + nick + " with id " + difficultyId + " in " + key);
+            trackname = trackname.Replace("%amp%", "&");
+            string author = trackname.Split('-')[0];
+            string name = trackname.Split('-')[1];
+            nick = nick.Replace("%amp%", "&");
 
-            try
+
+
+            MapInfo map = ProjectManager.GetMapInfo(trackname, nick);
+            var diff = map.difficulties.FirstOrDefault(c => c.id == difficultyId);
+            int stars = -1;
+            if (diff != null)
             {
-                trackname = trackname.Replace("%amp%", "&");
-                string author = trackname.Split('-')[0];
-                string name = trackname.Split('-')[1];
-                nick = nick.Replace("%amp%", "&");
-
-
-
-                MapInfo map = ProjectManager.GetMapInfo(trackname, nick);
-                var diff = map.difficulties.FirstOrDefault(c => c.id == difficultyId);
-                int stars = -1;
-                if (diff != null)
-                {
-                    stars = map.difficulties.FirstOrDefault(c => c.id == difficultyId).stars;
-                }
-
-                logger.LogInformation("[{action}] {trackname} by {nick} ({difficultyStars} with id {difficultyId})", key.ToUpper() + " MAP", trackname, nick, stars, difficultyId);
-
-
-                OperationResult op = DatabaseAPI.SetDifficultyStatistics(trackname, nick, difficultyId, key);
-
-
-                // Update published maps statistics
-                var mapperAcc = ctx.Players.FirstOrDefault(c => c.Nick == nick);
-                switch (key)
-                {
-                    case "play":
-                        mapperAcc.PublishedMapsPlayed++; break;
-                    case "like":
-                        mapperAcc.PublishedMapsLiked++; break;
-                }
-                await ctx.SaveChangesAsync();
-
-
-
-                if (op.state == OperationResult.State.Fail)
-                {
-                    return Content("[ERR] " + op.message);
-                }
-                else
-                {
-                    return Content("Success");
-                }
-            }
-            catch(Exception err)
-            {
-                Console.WriteLine("  SetDifficultyStatistics error\n" + err.Message);
+                stars = map.difficulties.FirstOrDefault(c => c.id == difficultyId).stars;
             }
 
-            return Content("Success");
+            logger.LogInformation("[{action}] {trackname} by {nick} ({difficultyStars} with id {difficultyId})", key.ToString().ToUpper() + " MAP", trackname, nick, stars, difficultyId);
+
+
+            OperationResult op = DatabaseAPI.SetDifficultyStatistics(trackname, nick, difficultyId, key);
+
+
+            // Update published maps statistics
+            var mapperAcc = ctx.Players.FirstOrDefault(c => c.Nick == nick);
+            switch (key)
+            {
+                case DifficultyStatisticsKey.Play:
+                    mapperAcc.PublishedMapsPlayed++; break;
+                case DifficultyStatisticsKey.Like:
+                    mapperAcc.PublishedMapsLiked++; break;
+            }
+            await ctx.SaveChangesAsync();
+
+
+
+            if (op.state == OperationResult.State.Fail)
+            {
+                return Content("[ERR] " + op.message);
+            }
+            else
+            {
+                return Content("Success");
+            }
         }
     }
 }

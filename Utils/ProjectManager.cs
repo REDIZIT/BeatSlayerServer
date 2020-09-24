@@ -259,6 +259,7 @@ namespace BeatSlayerServer.ProjectManagement
 
         public int Downloads { get { return difficulties.Sum(c => c.downloads); } }
         public int PlayCount { get { return difficulties.Sum(c => c.playCount); } }
+        public int LaunchesCount { get { return difficulties.Sum(c => c.launches); } }
         public int Likes { get { return difficulties.Sum(c => c.likes); } }
         public int Dislikes { get { return difficulties.Sum(c => c.dislikes); } }
 
@@ -301,6 +302,6 @@ namespace BeatSlayerServer.ProjectManagement
         public int stars;
         public int id = -1;
 
-        public int downloads, playCount, likes, dislikes;
+        public int downloads, playCount, launches, likes, dislikes;
     }
 }

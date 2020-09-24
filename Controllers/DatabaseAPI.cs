@@ -83,27 +83,27 @@ namespace BeatSlayerServer.API
             ProjectManager.SetMapInfo(trackname, nick, info);
             return new OperationResult(OperationResult.State.Success);
         }
-        public static OperationResult SetDifficultyStatistics(string trackname, string nick, int difficultyId, string key)
+        public static OperationResult SetDifficultyStatistics(string trackname, string nick, int difficultyId, DifficultyStatisticsKey key)
         {
             MapInfo info = ProjectManager.GetMapInfo(trackname, nick);
 
-            if (key != "download" && key != "play" && key != "like" && key != "dislike") return new OperationResult(OperationResult.State.Fail, "Key is invalid");
-
             DifficultyInfo d = null;
-            if(key != "download")
+            if(key != DifficultyStatisticsKey.Download)
             {
                 d = info.difficulties.Find(c => c.id == difficultyId);
             }
 
             switch (key)
             {
-                case "download":
+                case DifficultyStatisticsKey.Download:
                     info.downloads++; break;
-                case "play":
+                case DifficultyStatisticsKey.Play:
                     d.playCount++; break;
-                case "like":
+                case DifficultyStatisticsKey.Launch:
+                    d.launches++; break;
+                case DifficultyStatisticsKey.Like:
                     d.likes++; break;
-                case "dislike":
+                case DifficultyStatisticsKey.Dislike:
                     d.dislikes++; break;
             }
 
@@ -120,87 +120,10 @@ namespace BeatSlayerServer.API
 
             return ProjectManager.GetMapInfo(trackname, nick);
         }
+    }
 
-
-
-        //public static string UpgradePrelisten(bool accept = false)
-        //{
-        //    string log = "Upgrade map infos accept = " + accept;
-
-        //    string tracksFolder = Payload.TracksFolder;
-        //    string[] groupFolders = Directory.GetDirectories(tracksFolder);
-        //    foreach (string groupFolder in groupFolders)
-        //    {
-        //        string trackname = new DirectoryInfo(groupFolder).Name;
-
-        //        string[] nicksFolders = Directory.GetDirectories(groupFolder);
-        //        foreach (string nickFolder in nicksFolders)
-        //        {
-        //            string nick = new DirectoryInfo(nickFolder).Name;
-
-        //            log += "\n" + trackname + "  |  " + nick;
-
-
-        //            // Upgrade code
-
-        //            // To delete
-        //            string filepathes = nickFolder + "/" + trackname;
-        //            string mp3FilePath = filepathes + ".mp3";
-        //            string mp3FullFilePath = filepathes + ".full.mp3";
-        //            string oggFilePath = filepathes + ".ogg";
-        //            string logFilePath = filepathes + ".log";
-        //            string bszFilePath = filepathes + ".bsz";
-
-        //            if (File.Exists(mp3FullFilePath)) log += "\n >>>> Mp3 full";
-        //            if (File.Exists(mp3FilePath)) log += "\n >>>> Mp3 cut";
-        //            if (File.Exists(oggFilePath)) log += "\n >>>> Ogg cut";
-
-
-        //            if (!accept) continue;
-
-        //            File.Delete(mp3FilePath);
-        //            File.Delete(oggFilePath);
-        //            File.Delete(logFilePath);
-
-
-
-        //            Project proj = null;
-        //            try
-        //            {
-        //                proj = ProjectManager.LoadProject(bszFilePath);
-        //            }
-        //            catch(Exception err)
-        //            {
-        //                log += " !!!! ERROR: " + err.Message;
-        //                continue;
-        //            }
-
-
-
-        //            // Cutting audio
-        //            if (mp3FullFilePath.Contains(".mp3"))
-        //            {
-        //                File.WriteAllBytes(mp3FullFilePath, proj.audioFile);
-
-        //                AudioCutter cutter = new AudioCutter();
-
-        //                cutter.LoadFile(mp3FullFilePath);
-        //                byte[] result = cutter.CutAudioFile(proj.mins * 60 + proj.secs, 25, 10);
-
-        //                File.WriteAllBytes(mp3FilePath, result);
-
-        //                File.Delete(mp3FullFilePath);
-
-        //                log += "\n --- Done";
-        //            }
-        //            else
-        //            {
-        //                log += "\n --- Ignored";
-        //            }
-        //        }
-        //    }
-
-        //    return log;
-        //}
+    public enum DifficultyStatisticsKey
+    {
+        Download, Launch, Play, Like, Dislike
     }
 }
