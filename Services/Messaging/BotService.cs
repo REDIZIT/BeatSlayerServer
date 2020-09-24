@@ -1,4 +1,6 @@
-﻿using BeatSlayerServer.Models.Configuration;
+﻿using BeatSlayerServer.Dtos;
+using BeatSlayerServer.Dtos.Mapping;
+using BeatSlayerServer.Models.Configuration;
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -20,6 +22,8 @@ namespace BeatSlayerServer.Services.Messaging
         private const string url_sendApproveMail = "/SendApprove?nick={0}&email={1}&trackname={2}&moderator={3}&reason={4}";
         private const string url_sendReject = "/SendMapRejectedMessage?trackname={0}&mapper={1}&moderator={2}&comment={3}";
         private const string url_sendRejectMail = "/SendReject?nick={0}&email={1}&trackname={2}&moderator={3}&reason={4}";
+
+        private const string url_sendScore = "/SendScore?nick={0}&grade={1}&trackname={2}&mods={3}&accuracy={4}&rp={5}";
 
         private const string url_cheat = "/SendCheat?trackname={0}&moderator={1}";
         private const string url_coinsSyncLimit = "/SendCoinsSyncLimit?nick={0}&coins={1}";
@@ -85,8 +89,6 @@ namespace BeatSlayerServer.Services.Messaging
             await SendMessage(url_build, messager);
         }
 
-
-
         public async Task SendMapPublished(string trackname, string mapper)
         {
             await SendMessage(url_sendMapPublished, trackname, mapper);
@@ -103,6 +105,13 @@ namespace BeatSlayerServer.Services.Messaging
         {
             await SendMessage(url_sendReject, trackname, mapper, moderator, comment);
         }
+        public async Task SendScore(ReplayData replay, ReplaySendData data)
+        {
+            // [player name] got [rank] [Map+mods] [accuracy%] [Number of RP] ~~[ranked or not ranked]~~
+            int roundedPercents = (int)Math.Floor(replay.Accuracy * 100);
+            await SendMessage(url_sendScore, replay.Nick, data.Grade.ToString(), replay.Map.Trackname, replay.Mods.ToString(), roundedPercents.ToString(), Math.Floor(data.RP).ToString());
+        }
+
         public async Task ModeratorCheat(string trackname, string moderator)
         {
             await SendMessage(url_cheat, trackname, moderator);

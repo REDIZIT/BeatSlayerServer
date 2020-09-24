@@ -1,4 +1,5 @@
 ﻿using BeatSlayerServer.Models.Configuration;
+using BeatSlayerServer.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,10 +14,12 @@ namespace BeatSlayerServer.Services
         private readonly string multiplayerEventFolder;
 
         private readonly ServerSettings settings;
+        //private readonly MyDbContext ctx;
 
-        public EventService(SettingsWrapper settingsWrapper)
+        public EventService(SettingsWrapper settingsWrapper/*, MyDbContext ctx*/)
         {
             settings = settingsWrapper.settings;
+            //this.ctx = ctx;
 
             eventFolder = settings.SharedFolder + "/Events";
             multiplayerEventFolder = eventFolder + "/Multiplayer";
@@ -29,6 +32,10 @@ namespace BeatSlayerServer.Services
         public void OnPlayerPlay(string nick)
         {
             string filepath = multiplayerEventFolder + "/" + nick + ".txt";
+
+            //// If player has >50k RP
+            //if (ctx.Players.Select(c => new { nick = c.Nick, rp = c.RP }).First(c => c.nick == nick).rp >= 50000)
+            //    return;
 
             if (File.Exists(filepath))
             {

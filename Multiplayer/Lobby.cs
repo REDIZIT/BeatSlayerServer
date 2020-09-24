@@ -55,6 +55,8 @@ namespace BeatSlayerServer.Models.Multiplayer
                 }
             }
 
+            return null;
+
             throw new NotImplementedException("Lobby is full, new player can't join it");
         }
 

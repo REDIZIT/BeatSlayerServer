@@ -23,6 +23,7 @@ using System.Linq;
 using BeatSlayerServer.Enums.Game;
 using BeatSlayerServer.Models.Multiplayer.Chat;
 using BeatSlayerServer.Models.Maps;
+using BeatSlayerServer.Services.Messaging;
 
 namespace BeatSlayerServer.Utils
 {
@@ -35,6 +36,7 @@ namespace BeatSlayerServer.Utils
 
         private readonly ChatService chatService;
         private readonly RankingService rankingService;
+        private readonly BotService botService;
         private readonly NotificationService notificationService;
         private readonly ShopService shopService;
         private readonly LobbyService lobbyService;
@@ -43,13 +45,15 @@ namespace BeatSlayerServer.Utils
 
         private readonly DashboardService dashboardService;
         private readonly ServerSettings settings;
+        private readonly MyDbContext ctx;
 
         public GameHub(MyDbContext context, ILogger<GameHub> logger, SettingsWrapper wrapper, ConnectionService connectionService, AccountService accountService,
             ChatService chatService, RankingService rankingService, NotificationService notificationService, ShopService shopService,
-            DashboardService dashboardService, LobbyService lobbyService, EventService eventService)
+            DashboardService dashboardService, LobbyService lobbyService, EventService eventService, MyDbContext ctx, BotService botService)
         {
             this.context = context;
             this.logger = logger;
+            this.ctx = ctx;
             settings = wrapper.settings;
 
             this.accountService = accountService;
@@ -59,6 +63,7 @@ namespace BeatSlayerServer.Utils
             this.notificationService = notificationService;
             this.shopService = shopService;
             this.lobbyService = lobbyService;
+            this.botService = botService;
 
             this.eventService = eventService;
 
@@ -200,6 +205,11 @@ namespace BeatSlayerServer.Utils
             ReplaySendData data = await rankingService.AddReplay(replay);
 
             rankingService.CalculateLeaderboardPlaces();
+
+            if (replay.Map.Trackname != settings.TutorialTrackname)
+            {
+                await botService.SendScore(replay, data);
+            }
 
             return data;
         }
@@ -462,7 +472,9 @@ namespace BeatSlayerServer.Utils
         }
         public void OnMultiplayerPlayerFinished(int lobbyId, string nick, ReplayData replay)
         {
-            eventService.OnPlayerPlay(nick);
+            if (ctx.Players.Select(c => new { nick = c.Nick, rp = c.RP }).First(c => c.nick == nick).rp < 50000)
+                eventService.OnPlayerPlay(nick);
+
             lobbyService.PlayerFinished(lobbyId, nick, replay);
         }
         public void OnMultiplayerPlayerLeft(int lobbyId, string nick)

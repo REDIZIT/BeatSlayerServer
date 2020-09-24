@@ -5,6 +5,7 @@ using BeatSlayerServer.Models.Multiplayer;
 using BeatSlayerServer.Models.Multiplayer.Chat;
 using BeatSlayerServer.Utils;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,10 +18,12 @@ namespace BeatSlayerServer.Services.Multiplayer
 
         private readonly ConnectionService connService;
         private readonly IHubContext<GameHub> hub;
+        private readonly ILogger<LobbyService> logger;
 
 
-        public LobbyService(ConnectionService connService, IHubContext<GameHub> hub)
+        public LobbyService(ILogger<LobbyService> logger, ConnectionService connService, IHubContext<GameHub> hub)
         {
+            this.logger = logger;
             this.connService = connService;
             this.hub = hub;
         }
@@ -62,6 +65,7 @@ namespace BeatSlayerServer.Services.Multiplayer
                 {
                     Lobby lobby = new Lobby(i, player);
                     Lobbies[i] = lobby;
+                    logger.LogInformation("[{action}] Lobbies count is {lobbiesCount}", "Lobbies Changed", Lobbies.Values.Count);
                     return lobby;
                 }
             }
@@ -78,6 +82,7 @@ namespace BeatSlayerServer.Services.Multiplayer
 
             Lobby lobby = Lobbies[lobbyId];
             LobbyPlayer lobbyPlayer = lobby.Join(player);
+            if (lobbyPlayer == null) return null;
 
 
             SendLobbyToAllExcept(lobby.LobbyId, player.Nick, "OnLobbyPlayerJoin", new LobbyPlayerDTO(lobbyPlayer));
@@ -87,7 +92,7 @@ namespace BeatSlayerServer.Services.Multiplayer
                 PlayerNick = player.Nick
             });
 
-
+            logger.LogInformation("[{action}] All players in lobbies {playersInLobbies}", "PlayersInLobbies", Lobbies.Values.Sum(c => c.Players.Count));
 
             return new LobbyDTO(lobby);
         }
@@ -135,7 +140,10 @@ namespace BeatSlayerServer.Services.Multiplayer
             {
                 Console.WriteLine("Destroy lobby");
                 Lobbies.Remove(lobbyId);
+                logger.LogInformation("[{action}] Lobbies count is {lobbiesCount}", "Lobbies Changed", Lobbies.Values.Count);
             }
+
+            logger.LogInformation("[{action}] All players in lobbies {playersInLobbies}", "PlayersInLobbies", Lobbies.Values.Sum(c => c.Players.Count));
         }
         public void Rename(int lobbyId, string lobbyName)
         {
