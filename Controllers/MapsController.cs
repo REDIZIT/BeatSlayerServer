@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -110,13 +111,22 @@ namespace BeatSlayerServer.Controllers.Wrappers
 
             return Content(op.Type == Utils.OperationType.Success ? "Success" : "[ERR] " + op.Message);
         }
-        
+
 
         public IActionResult GetCoverPicture(string trackname, string mapper)
         {
             byte[] cover = mapsService.GetCover(trackname, mapper);
 
             return File(cover, "image/jpeg");
-        }       
+        }
+
+        public string CreateCovers(string trackname, string mapper)
+        {
+            Stopwatch w = Stopwatch.StartNew();
+
+            mapsService.CreateCovers(trackname, mapper);
+
+            return $"Done in {w.ElapsedMilliseconds}ms";
+        }
     }
 }

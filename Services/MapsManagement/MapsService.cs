@@ -11,6 +11,7 @@ using MapInfo = BeatSlayerServer.ProjectManagement.MapInfo;
 using System.Diagnostics;
 using System.Text;
 using BeatSlayerServer.Models.Maps;
+using System.Drawing;
 
 namespace BeatSlayerServer.Services.MapsManagement
 {
@@ -237,24 +238,6 @@ namespace BeatSlayerServer.Services.MapsManagement
             moderationService.data.approvedMaps.RemoveAll(c => c.group.author + "-" + c.group.name == trackname && c.nick == nick);
             moderationService.SaveData();
 
-
-            // Reset all records with this map
-            /*foreach (var accjs in AccountController.data.accounts)
-            {
-                accjs.replays.RemoveAll(c => c.author == info.group.author && c.name == info.group.name && c.nick == info.nick);
-                accjs.playedMaps.RemoveAll(c => c.author == info.group.author && c.name == info.group.name && c.nick == info.nick);
-                accjs.records.RemoveAll(c => c.author == info.group.author && c.name == info.group.name && c.nick == info.nick);
-            }*/
-
-            // Not implemented
-            /*foreach (var acc in Core.ctx.Players)
-            {
-                acc.Replays.RemoveAll(c => c.Map.Group.Author == author && c.Map.Group.Name == name && c.Map.Nick == nick);
-            }*/
-            //AccountController.SaveAccounts();
-
-            // No integration with actual db accounts (ef core)
-
             return new OperationMessage(OperationType.Success);
         }
 
@@ -298,6 +281,23 @@ namespace BeatSlayerServer.Services.MapsManagement
                 return GetDefaultCover();
             }
         }
+        public void CreateCovers(string trackname, string mapper)
+        {
+            if (!TryGetCoverPath(trackname, mapper, out string coverPath)) return;
+
+            string baseName = coverPath.Replace(Path.GetExtension(coverPath), "");
+            Bitmap square = PictureHelper.CutImage(coverPath);
+
+            CreateCover(square, 512, baseName, Path.GetExtension(coverPath));
+            CreateCover(square, 256, baseName, Path.GetExtension(coverPath));
+            CreateCover(square, 128, baseName, Path.GetExtension(coverPath));
+        }
+        private void CreateCover(Bitmap image, int size, string baseName, string extension)
+        {
+            Bitmap huge = PictureHelper.ResizeImage(image, size, size);
+
+            huge.Save(baseName + $"_{size}x{size}" + extension);
+        }
 
 
 
@@ -312,16 +312,5 @@ namespace BeatSlayerServer.Services.MapsManagement
             map = group.Maps.FirstOrDefault(c => c.Nick == nick);
             return map != null;
         }
-    }
-
-
-    /// <summary>
-    /// Describes a maixum which player can get on map. Will be moved to GroupInfo and MapInfo in future.
-    /// </summary>
-    public class MapMaxResult
-    {
-        public int CubesCount { get; set; }
-        public int MaxCombo { get; set; }
-        public int MaxRP { get; set; }
     }
 }
