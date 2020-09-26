@@ -115,7 +115,7 @@ namespace BeatSlayerServer.Controllers.Wrappers
 
         public IActionResult GetCoverPicture(string trackname, string mapper)
         {
-            byte[] cover = mapsService.GetCover(trackname, mapper);
+            byte[] cover = mapsService.GetCover(trackname, mapper, ImageSize._128x128);
 
             return File(cover, "image/jpeg");
         }

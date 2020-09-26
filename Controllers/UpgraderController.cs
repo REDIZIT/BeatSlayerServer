@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Authorization;
 using BeatSlayerServer.Controllers;
 using BeatSlayerServer.Utils.Shop;
 using BeatSlayerServer.Models.Maps;
+using System.Threading;
 
 namespace BeatSlayerServer.Core
 {
@@ -377,166 +378,40 @@ namespace BeatSlayerServer.Core
 
         public string GiveItem(string nick, int itemId, string masterpass)
         {
+            if (!SecurityHelper.CheckMasterpass(masterpass)) return "Invalid masterpass";
             if (!accountService.TryFindAccount(nick, out AccountDb acc)) return "No such account";
 
             return shopService.GiveItem(acc, itemId, masterpass) ? "Success" : "Failed";
         }
 
-
-
-
-        /*public string UpgradeProject()
+        public string CreateCoversForAll(string masterpass, int startStep = 0)
         {
-            StringBuilder b = new StringBuilder();
-            b.AppendLine("Tracks with old difficulties\n");
-
-
-            string[] groupFolders = Directory.GetDirectories(settings.TracksFolder);
-            foreach (var groupFolder in groupFolders)
-            {
-                string trackname = new DirectoryInfo(groupFolder).Name;
-                string[] mapperFolders = Directory.GetDirectories(groupFolder);
-
-
-                foreach (var mapperFolder in mapperFolders)
-                {
-                    string mapper = new FileInfo(mapperFolder).Name;
-
-                    try
-                    {
-                        string path = settings.TracksFolder + "/" + trackname + "/" + mapper + "/" + trackname + ".bsz";
-                        Project proj = ProjectManager.LoadProject(path);
-
-                        if(proj.difficulties.Count == 0 || proj.beatCubeList != null || proj.beatCubeList.Count != 0)
-                        {
-                            b.AppendLine(trackname);
-                           
-                            List<Difficulty> diffsToRemove = new List<Difficulty>();
-                            foreach (var diff in proj.difficulties)
-                            {
-                                if(diff.beatCubeList.Count == 0)
-                                {
-                                    diffsToRemove.Add(diff);
-                                }
-                            }
-                            proj.difficulties.RemoveAll(c => diffsToRemove.Contains(c));
-
-
-                            if(proj.difficulties.Count == 0)
-                            {
-                                string defaultName = "Standard";
-                                int defaultStars = 4;
-                                bool useDefault = string.IsNullOrWhiteSpace(proj.difficultName);
-
-                                b.AppendLine(" " + proj.difficultStars + "* " + proj.difficultName + " use default? " + useDefault);
-
-                                proj.lastGivenDifficultyId = proj.lastGivenDifficultyId == -1 ? 0 : proj.lastGivenDifficultyId;
-                                proj.difficulties.Add(new Difficulty()
-                                {
-                                    name = useDefault ? defaultName : proj.difficultName,
-                                    beatCubeList = proj.beatCubeList,
-                                    stars = useDefault ? defaultStars : proj.difficultStars,
-                                    speed = 1,
-                                    id = 0
-                                });
-
-
-
-
-                                var cls = new
-                                {
-                                    trackname = proj.author + " - " + proj.name,
-                                    cubesCount = proj.beatCubeList?.Count,
-                                    difficulties = proj.difficulties.Select(c => new { name = c.name, stars = c.stars, count = c.beatCubeList.Count }),
-                                    diffName = proj.difficultName,
-                                    Stars = proj.difficultStars
-                                };
-
-                                b.AppendLine(JsonConvert.SerializeObject(cls, Formatting.Indented));
-                            }
-
-                            //proj.beatCubeList.Clear();
-
-
-                            ProjectManager.SaveProject(proj, path);
-                        }
-                    }
-                    catch (Exception err)
-                    {
-                        logger.LogError(err.Message);
-                    }
-                }
-            }
-
-            return b.ToString();
-        }
-
-        public void UpgradeDifficulties(bool accept = false)
-        {
-            Response.StatusCode = 200;
-            Response.ContentType = "text/html";
-
-            // the easiest way to implement a streaming response, is to simply flush the stream after every write.
-            // If you are writing to the stream asynchronously, you will want to use a Synchronized StreamWriter.
+            if (!SecurityHelper.CheckMasterpass(masterpass)) return "Invalid masterpass";
 
             Stopwatch w = Stopwatch.StartNew();
 
-            string[] groupFolders = Directory.GetDirectories(settings.TracksFolder);
 
-
-            using (var sw = StreamWriter.Synchronized(new StreamWriter(Response.Body)))
+            int i = -1;
+            List<MapsData> groups = mapsService.GetGroupsExtended();
+            foreach (MapsData group in groups.Skip(startStep))
             {
-                foreach (var groupFolder in groupFolders)
+                i++;
+                if (i % 10 == 0)
                 {
-                    string trackname = new DirectoryInfo(groupFolder).Name;
-                    string[] mapperFolders = Directory.GetDirectories(groupFolder);
-
-                    foreach (var mapperFolder in mapperFolders)
-                    {
-                        string mapper = new FileInfo(mapperFolder).Name;
-                        
-                        try
-                        {
-                            string response = GetDifficulties(trackname, mapper);
-                            sw.WriteLine(response.Replace("\n", "<br>"));
-                            logger.LogInformation(response);
-                        }
-                        catch (Exception err)
-                        {
-                            sw.WriteLine("<br>[ERR] " + trackname + " by " + mapper + "  " + err.Message);
-                            logger.LogError(err.Message);
-                        }
-
-
-                        sw.WriteLine($"<br>[Processing time {w.ElapsedMilliseconds}ms]<br><br>");
-                        sw.Flush();
-                    }
+                    GC.Collect();
+                    Thread.Sleep(3000);
                 }
-            };
 
-            w.Stop();
-        }
-        public string GetDifficulties(string trackname, string mapper)
-        {
-            Stopwatch w = Stopwatch.StartNew();
+                startStep++;
+                Console.WriteLine("Step: " + startStep);
 
-            string mapFolder = settings.TracksFolder + "/" + trackname + "/" + mapper;
-            string projectFile = mapFolder + "/" + trackname + ".bsz";
-
-            Project proj = ProjectManager.LoadProject(projectFile);
-
-            StringBuilder b = new StringBuilder();
-            b.AppendLine("Difficulties count is " + proj.difficulties.Count);
-
-            foreach (var diff in proj.difficulties)
-            {
-                b.AppendLine($"[{diff.id}] {diff.stars}* {diff.speed}x {diff.name}");
+                foreach (string mapperNick in group.MappersNicks)
+                {
+                    mapsService.CreateCovers(group.Trackname, mapperNick);
+                }
             }
 
-            w.Stop();
-            b.AppendLine("Time elapsed: " + w.ElapsedMilliseconds + "ms");
-
-            return b.ToString();
-        }*/
+            return $"Done in {w.ElapsedMilliseconds}ms";
+        }
     }
 }

@@ -61,12 +61,12 @@ namespace BeatSlayerServer.Utils
         /// <param name="width">The width to resize to.</param>
         /// <param name="height">The height to resize to.</param>
         /// <returns>The resized image.</returns>
-        public static Bitmap ResizeImage(Image image, int width, int height)
+        public static Bitmap ResizeImage(Bitmap image, int width, int height)
         {
             var destRect = new Rectangle(0, 0, width, height);
             var destImage = new Bitmap(width, height);
 
-            destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+            destImage.SetResolution(image.Width, image.Height);
 
             using (var graphics = Graphics.FromImage(destImage))
             {
@@ -90,9 +90,7 @@ namespace BeatSlayerServer.Utils
 
     public enum ImageSize
     {
-        Huge_1024x1024,
-        Large_512x512,
-        Middle_256x256,
-        Small_128x128
+        _512x512,
+        _128x128
     }
 }

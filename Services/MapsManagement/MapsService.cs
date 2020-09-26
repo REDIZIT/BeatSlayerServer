@@ -186,9 +186,9 @@ namespace BeatSlayerServer.Services.MapsManagement
                 return new OperationResult(err);
             }
         }
-        public MapInfo GetMap(string trackname, string nick)
+        public FullMapData GetMap(string trackname, string nick)
         {
-            return ProjectManager.GetMapInfo(trackname, nick);
+            return new FullMapData(ProjectManager.GetMapInfo(trackname, nick));
         }
         public bool DoesMapExist(string trackname, string nick)
         {
@@ -242,37 +242,13 @@ namespace BeatSlayerServer.Services.MapsManagement
         }
 
 
-        private bool TryGetCoverPath(string trackname, string nick, out string coverPath)
-        {
-            string groupFolder = settings.TracksFolder + "/" + trackname;
-            string mapperFolder = groupFolder + "/" + nick;
-            string possibleCoverPath;
-
-            try
-            {
-                // If nick is empty or no such mapper folder return first mapper icon
-                if (nick == "")
-                {
-                    mapperFolder = Directory.GetDirectories(groupFolder)[0];
-                }
-
-                possibleCoverPath = mapperFolder + "/" + trackname;
-            }
-            catch
-            {
-                coverPath = "";
-                return false;
-            }
-
-            return FileHelper.TryFindFile(possibleCoverPath, out coverPath, ".jpg", ".png");
-        }
         public byte[] GetDefaultCover()
         {
             return File.ReadAllBytes(settings.DefaultMapIcon);
         }
-        public byte[] GetCover(string trackname, string nick)
+        public byte[] GetCover(string trackname, string nick, ImageSize size)
         {
-            if(TryGetCoverPath(trackname, nick, out string coverPath))
+            if (TryGetCoverPath(trackname, out string coverPath, nick, size))
             {
                 return File.ReadAllBytes(coverPath);
             }
@@ -283,20 +259,38 @@ namespace BeatSlayerServer.Services.MapsManagement
         }
         public void CreateCovers(string trackname, string mapper)
         {
-            if (!TryGetCoverPath(trackname, mapper, out string coverPath)) return;
+            string coverPath = settings.TracksFolder + "/" + trackname + "/" + mapper + "/" + trackname + ".jpg";
+            if (!File.Exists(coverPath))
+            {
+                coverPath = Path.ChangeExtension(coverPath, ".png");
+                if (!File.Exists(coverPath)) return;
+            }
+
+
+            Console.WriteLine("Create cover for " + trackname);
 
             string baseName = coverPath.Replace(Path.GetExtension(coverPath), "");
-            Bitmap square = PictureHelper.CutImage(coverPath);
 
-            CreateCover(square, 512, baseName, Path.GetExtension(coverPath));
-            CreateCover(square, 256, baseName, Path.GetExtension(coverPath));
-            CreateCover(square, 128, baseName, Path.GetExtension(coverPath));
+            string filepathHigh = baseName + $"_{512}x{512}" + Path.GetExtension(coverPath);
+            string filepathLow = baseName + $"_{128}x{128}" + Path.GetExtension(coverPath);
+
+            if (File.Exists(filepathHigh) && File.Exists(filepathLow)) return;
+
+            using (Bitmap square = PictureHelper.CutImage(coverPath))
+            {
+                CreateCover(square, 512, baseName, Path.GetExtension(coverPath));
+                CreateCover(square, 128, baseName, Path.GetExtension(coverPath));
+            }
         }
         private void CreateCover(Bitmap image, int size, string baseName, string extension)
         {
-            Bitmap huge = PictureHelper.ResizeImage(image, size, size);
+            string filepath = baseName + $"_{size}x{size}" + extension;
+            if (File.Exists(filepath)) return;
 
-            huge.Save(baseName + $"_{size}x{size}" + extension);
+            using (Bitmap map = PictureHelper.ResizeImage(image, size, size))
+            {
+                map.Save(filepath);
+            }
         }
 
 
@@ -311,6 +305,103 @@ namespace BeatSlayerServer.Services.MapsManagement
         {
             map = group.Maps.FirstOrDefault(c => c.Nick == nick);
             return map != null;
+        }
+
+
+
+
+        /// <summary>
+        /// Try find path to cover file
+        /// </summary>
+        /// <param name="size">Preferred size, if won't be found then will returned another</param>
+        /// <param name="coverPath">Result path to map cover file or null</param>
+        private bool TryGetCoverPath(string trackname, out string coverPath, string nick = "", ImageSize size = ImageSize._512x512)
+        {
+            // Tracks/Author-Name
+            string groupFolder = settings.TracksFolder + "/" + trackname;
+
+            if (!Directory.Exists(groupFolder))
+            {
+                coverPath = "";
+                return false;
+            }
+
+            // If nick is given
+            if (!string.IsNullOrWhiteSpace(nick))
+            {
+                string mapperFolder = groupFolder + "/" + groupFolder;
+                if (TryGetMapCoverByMapper(mapperFolder, trackname, size, out coverPath))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (TryGetFirstMapCover(groupFolder, trackname, size, out coverPath))
+                {
+                    return true;
+                }
+            }
+
+            coverPath = "";
+            return false;
+        }
+        private bool TryFindFileInFolder(string[] mappersFolder, string trackname, out string foundImagePath)
+        {
+            foreach (string mapperFolder in mappersFolder)
+            {
+                string possibleCoverPath = mapperFolder + "/" + trackname;
+
+                if (FileHelper.TryFindFile(possibleCoverPath, out foundImagePath, ".jpg", ".png"))
+                {
+                    return true;
+                }
+            }
+
+            foundImagePath = "";
+            return false;
+        }
+
+        private bool TryGetMapCoverByMapper(string mapperFolder, string trackname, ImageSize size, out string coverFilePath)
+        {
+            string preferredFilePath = mapperFolder + "/" + trackname + size.ToString();
+
+            // Successfuly found preferred file
+            if (FileHelper.TryFindFile(preferredFilePath, out string foundPreferredFilepath, ".jpg", ".png"))
+            {
+                coverFilePath = foundPreferredFilepath;
+                return true;
+            }
+
+            // Checking for all sizes
+            foreach (ImageSize anotherSize in Enum.GetValues(typeof(ImageSize)))
+            {
+                string anotherFilePath = mapperFolder + "/" + trackname + anotherSize.ToString();
+                if (File.Exists(anotherFilePath))
+                {
+                    coverFilePath = anotherFilePath;
+                    return true;
+                }
+            }
+
+            // If no cover with any size in ImageSize
+            coverFilePath = "";
+            return false;
+        }
+
+        private bool TryGetFirstMapCover(string groupFolder, string trackname, ImageSize size, out string coverFilePath)
+        {
+            string[] mappersFolders = Directory.GetDirectories(groupFolder);
+            foreach (string mapperFolder in mappersFolders)
+            {
+                if(TryGetMapCoverByMapper(mapperFolder, trackname, size, out coverFilePath))
+                {
+                    return true;
+                }
+            }
+
+            coverFilePath = "";
+            return false;
         }
     }
 }

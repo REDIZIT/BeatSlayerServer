@@ -52,6 +52,13 @@ namespace BeatSlayerServer.Controllers.Wrappers
         public IActionResult GetGroupsExtended(bool intended = false)
         {
             List<MapsData> ls = mapsService.GetGroupsExtended();
+
+            //MapsData tutorialMap = ls.FirstOrDefault(c => c.Author + "-" + c.Name == settings.TutorialTrackname);
+            //if(tutorialMap != null)
+            //{
+            //    tutorialMap.MapType = GroupType.Tutorial;
+            //}
+
             return Content(JsonConvert.SerializeObject(ls, intended ? Formatting.Indented : Formatting.None));
         }
         public IActionResult GetGroupsExtendedFromDb()
@@ -95,7 +102,7 @@ namespace BeatSlayerServer.Controllers.Wrappers
             trackname = trackname.Replace("%amp%", "&");
             nick = nick.Replace("%amp%", "&");
 
-            MapInfo map = mapsService.GetMap(trackname, nick);
+            FullMapData map = mapsService.GetMap(trackname, nick);
             return Content(JsonConvert.SerializeObject(map));
         }
 
@@ -125,29 +132,20 @@ namespace BeatSlayerServer.Controllers.Wrappers
             trackname = UrlHelper.Decode(trackname);
             nick = UrlHelper.Decode(nick);
 
-            byte[] bytes = mapsService.GetCover(trackname, nick);
+            byte[] bytes = mapsService.GetCover(trackname, nick, ImageSize._512x512);
 
             return File(bytes, System.Net.Mime.MediaTypeNames.Application.Octet, "cover.jpg");
         }
         public IActionResult GetCoverAsPicture(string trackname = "", string nick = "")
         {
-            //trackname = trackname.Replace("%amp%", "&");
-
-            //string coverPath = DatabaseAPI.GetCoverPath(trackname, nick);
-            //if (coverPath == "") coverPath = "Data/TrackIcon.png";
-
-            //byte[] bytes = DatabaseAPI.GetCover(coverPath);
-            //string ext = Path.GetExtension(coverPath);
             trackname = UrlHelper.Decode(trackname);
             nick = UrlHelper.Decode(nick);
 
             if (nick == null) nick = "";
 
-            byte[] bytes = mapsService.GetCover(trackname, nick);
+            byte[] bytes = mapsService.GetCover(trackname, nick, ImageSize._512x512);
 
             return File(bytes, System.Net.Mime.MediaTypeNames.Image.Jpeg, "cover");
-
-            //return File(bytes, "image/" + (ext == ".png" ? "png" : "jpeg"));
         }
 
 
