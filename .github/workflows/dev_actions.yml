@@ -1,0 +1,25 @@
+name: Development pushing
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+    
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Execute SSH commmands on remote server
+        uses: garygrossgarten/github-action-ssh@release
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          command: | 
+            cd /source/Server Development/BeatSlayerServer
+            git pull
+            dotnet publish -c release -o ../BeatSlayerServer-Build
+            systemctl restart bsdev
