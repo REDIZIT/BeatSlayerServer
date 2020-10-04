@@ -29,7 +29,7 @@ namespace BSServer.Controllers
 
         public IActionResult Test()
         {
-            return Content("Да бля, это капуста");
+            return Content("Да бля, это капуста!");
         }
 
 
