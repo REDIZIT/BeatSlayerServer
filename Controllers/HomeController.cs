@@ -33,24 +33,15 @@ namespace BSServer.Controllers
         }
 
 
-        public IActionResult Index(/*IHostEnvironment env*/)
+        public IActionResult Index()
         {
             HomeModel model = new HomeModel()
             {
-                //ServerType = env.IsProduction() ? ServerType.Production : ServerType.Development
                 ServerType = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production" ? ServerType.Production : ServerType.Development
             };
             return View(model);
         }
 
-        public IActionResult GetOnlineData(int offset)
-        {
-            HomeModel model = new HomeModel();
-
-            model.chartInfo = heartbeatService.GetChartInfo(offset);
-            
-            return Content(JsonConvert.SerializeObject(model));
-        }
         public IActionResult GetMapStatistics(int offset)
         {
             HomeModel model = new HomeModel();
