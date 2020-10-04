@@ -19,12 +19,14 @@ namespace BeatSlayerServer.Services.MapsManagement
         private ServerSettings settings;
         private readonly BotService botService;
         private readonly ModerationService moderationService;
+        private readonly MapsService mapsService;
 
-        public PublishService(MyDbContext ctx, IOptionsMonitor<ServerSettings> mon, BotService botService, ModerationService moderationService)
+        public PublishService(MyDbContext ctx, IOptionsMonitor<ServerSettings> mon, BotService botService, ModerationService moderationService, MapsService mapsService)
         {
             this.ctx = ctx;
             this.botService = botService;
             this.moderationService = moderationService;
+            this.mapsService = mapsService;
 
             settings = mon.CurrentValue;
             mon.OnChange((sets) => settings = sets);
@@ -41,8 +43,6 @@ namespace BeatSlayerServer.Services.MapsManagement
             string folder = settings.Publishing.TempFolder;
             string tempfilepath = folder + "/" + trackname + ".bsz";
             Directory.CreateDirectory(folder);
-
-            Console.WriteLine("PublishProject " + trackname);
 
             using(Stream stream = File.Create(tempfilepath))
             {
@@ -97,9 +97,11 @@ namespace BeatSlayerServer.Services.MapsManagement
 
                 AddMapToDatabase(compressedProject);
 
+                mapsService.CreateCovers(trackname, compressedProject.creatorNick);
+
+
 
                 await botService.SendMapPublished(compressedProject.author + " - " + compressedProject.name, compressedProject.creatorNick);
-
                 return new OperationResult(OperationResult.State.Success);
             }
             catch (Exception err)

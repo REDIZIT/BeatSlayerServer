@@ -42,7 +42,7 @@ namespace BeatSlayerServer.Controllers.Wrappers
         {
             OperationResult op = await publishService.PublishProject(file);
 
-            logger.LogError("[PUBLISH MAP] {result}", op);
+            //logger.LogError("[PUBLISH MAP] {result}", op);
 
             return Content(JsonConvert.SerializeObject(op));
         }

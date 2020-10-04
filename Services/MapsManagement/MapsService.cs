@@ -266,9 +266,6 @@ namespace BeatSlayerServer.Services.MapsManagement
                 if (!File.Exists(coverPath)) return;
             }
 
-
-            Console.WriteLine("Create cover for " + trackname);
-
             string baseName = coverPath.Replace(Path.GetExtension(coverPath), "");
 
             string filepathHigh = baseName + $"_{512}x{512}" + Path.GetExtension(coverPath);

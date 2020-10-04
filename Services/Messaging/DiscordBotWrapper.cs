@@ -78,6 +78,10 @@ namespace BeatSlayerServer.Services.Messaging.Discord
                 return false;
             }
         }
+
+
+
+
         public async Task Kill()
         {
             await SendMessage(url_kill);
@@ -88,25 +92,21 @@ namespace BeatSlayerServer.Services.Messaging.Discord
         }
         public async Task SendModerationRequestMessage(string trackname, string mapper)
         {
-            //ModerationRequestMessage msg = new ModerationRequestMessage(trackname, mapper, ModeratorRole);
             await SendMessage(url_moderation, trackname, mapper);
         }
 
         public async Task SendMapPublishedMessage(string trackname, string mapper)
         {
-            //MapPublishMessage msg = new MapPublishMessage(trackname, mapper);
             await SendMessage(url_publish, trackname, mapper);
         }
 
         public async Task SendMapApprovedMessage(string trackname, string mapper, string moderator, string comment)
         {
-            //MapApproveMessage msg = new MapApproveMessage(trackname, mapper, moderator, comment);
             await SendMessage(url_approve, trackname, mapper, moderator, comment);
         }
 
         public async Task SendMapRejectedMessage(string trackname, string mapper, string moderator, string comment)
         {
-            //MapRejectMessage msg = new MapRejectMessage(trackname, mapper, moderator, comment);
             await SendMessage(url_reject, trackname, mapper, moderator, comment);
         }
     }

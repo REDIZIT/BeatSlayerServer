@@ -32,7 +32,7 @@ namespace BeatSlayerServer.Services.Multiplayer
         {
             foreach (Lobby lobby in Lobbies.Values)
             {
-                if (lobby.Players.Any(c => c.Value.Player == player))
+                if (lobby.Players.Any(c => c.Value.Player.Nick == player.Nick))
                 {
                     LeaveLobby(lobby.LobbyId, player);
                 }
