@@ -19,7 +19,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           command: | 
-            cd /source/Server Development/BeatSlayerServer
-            git pull
+            cd "/source/ServerDevelopment/BeatSlayerServer"
+            git pull origin dev
             dotnet publish -c release -o ../BeatSlayerServer-Build
             systemctl restart bsdev

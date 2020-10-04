@@ -1,21 +1,16 @@
 {
 
-  "TutorialTrackname": "cal3432-Tutorial Map",
-
-
+  "TutorialTrackname": "Beat Slayer-Tutorial",
   "Tutorial": {
-    //"TutorialMap": {
-    //  "Beat Slayer-Tutorial": ""
-    //}
     "EasyMaps": {
       "THR3-Begin Again (Better Version)": "thatxgamer",
-      "Vicetone  Tony IGY-Astronomia  Coffin Dance": "Крит",
-      "The Fuhrer-Firing Order II": "XeroAzurus",
       "Coolio-Gangsta's Paradise": "Noobslayerplay",
-      "Lucha & R3vxs-Anubis": "REDIZIT"
+      "Lucha & R3vxs-Anubis": "REDIZIT",
+      "Combichrist-Never Surrender(DMC OST)": "NickBro"
     },
     "HardMaps": {
-      "RIOT-Overkill": "REDIZIT"
+      "RIOT-Overkill": "REDIZIT",
+      "you-Melancholia": "idxracer"
     }
   },
 
@@ -77,39 +72,44 @@
   "Mods": {
     "Mods": [
       {
-        "modEnum": "NoFail",
+        "modEnum": 1,
         "scoreMultiplier": 0.5,
         "rpMultiplier": 0
       },
       {
-        "modEnum": "Easy",
+        "modEnum": 2,
         "scoreMultiplier": 0.7,
         "rpMultiplier": 0.7
       },
       {
-        "modEnum": "Hard",
+        "modEnum": 4,
         "scoreMultiplier": 1.08,
         "rpMultiplier": 1.06
       },
       {
-        "modEnum": "DoubleTime",
+        "modEnum": 8,
         "scoreMultiplier": 1.14,
         "rpMultiplier": 1.09
       },
       {
-        "modEnum": "OneTry",
+        "modEnum": 16,
         "scoreMultiplier": 1.02,
         "rpMultiplier": 1
       },
       {
-        "modEnum": "NightCore",
+        "modEnum": 32,
         "scoreMultiplier": 1.05,
         "rpMultiplier": 1.02
       },
       {
-        "modEnum": "NoBombs",
+        "modEnum": 64,
         "scoreMultiplier": 0.8,
         "rpMultiplier": 1
+      },
+      {
+        "modEnum": 128,
+        "scoreMultiplier": 0.4,
+        "rpMultiplier": 0.2
       }
     ]
   },
@@ -190,12 +190,22 @@
         "ItemId": 14,
         "Name": "Piston Location",
         "Cost": 30000
+      },
+      {
+        "ItemId": 15,
+        "Name": "AthenasTwinbladeSaber",
+        "Cost": 28000
       }
     ]
   },
 
+
+  "Bans": {
+    "ApproveBans": [ "SHREK" ]
+  },
+
   "Event": {
-    "EventStartTime": "2020-09-07T00:03:00Z",
-    "EventEndTime": "2020-09-13T00:03:00Z"
+    "EventStartTime": "2020-09-15T00:03:00Z",
+    "EventEndTime": "2020-09-22T00:03:00Z"
   }
 }
