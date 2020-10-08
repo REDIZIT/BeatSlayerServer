@@ -20,4 +20,4 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd "/source/ServerProduction/BeatSlayerServer"
-            swapper current
+            /srv/swapper/Swapper.dll current
