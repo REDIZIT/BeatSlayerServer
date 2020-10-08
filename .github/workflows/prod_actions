@@ -1,0 +1,26 @@
+name: Productions pushing
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+    
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Execute SSH commmands on remote server
+        uses: garygrossgarten/github-action-ssh@release
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          command: | 
+            cd "/source/ServerProduction/BeatSlayerServer"
+            git pull origin master
+            dotnet publish -c release -o $(swapper next | grep "Working" | sed 's/^.*: //' | tr -d ' ')
+            systemctl status $(swapper next | grep "Daemon" | sed 's/^.*: //' | tr -d ' ')
+            swapper swap
