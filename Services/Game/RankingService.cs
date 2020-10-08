@@ -72,7 +72,8 @@ namespace BeatSlayerServer.Services.Game
 
 
             List<ModSO> selectedMods = settings.Mods.Mods.Where(c => replay.Mods.HasFlag(c.ModEnum)).ToList();
-            logger.LogInformation("[DEBUG] Selected modsSo are {selectedModsJson}", JsonConvert.SerializeObject(selectedMods, Formatting.Indented));
+
+
 
             ReplayInfo info = new ReplayInfo()
             {
