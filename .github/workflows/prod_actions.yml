@@ -21,6 +21,6 @@ jobs:
           command: | 
             cd "/source/ServerProduction/BeatSlayerServer"
             git pull origin master
-            dotnet publish -c release -o $(/srv/swapper/Swapper.dll next | grep "Working" | sed 's/^.*: //' | tr -d ' ')
-            systemctl status $(/srv/swapper/Swapper.dll next | grep "Daemon" | sed 's/^.*: //' | tr -d ' ')
-            /srv/swapper/Swapper.dll swap
+            sudo dotnet publish -c release -o $(/srv/swapper/Swapper.dll next | grep "Working" | sed 's/^.*: //' | tr -d ' ')
+            sudo systemctl status $(/srv/swapper/Swapper.dll next | grep "Daemon" | sed 's/^.*: //' | tr -d ' ')
+            sudo /srv/swapper/Swapper.dll swap
