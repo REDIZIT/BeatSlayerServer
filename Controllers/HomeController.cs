@@ -8,7 +8,6 @@ using BeatSlayerServer.Utils;
 using BeatSlayerServer.Services.Statistics;
 using BeatSlayerServer.Models.Configuration;
 using BeatSlayerServer.Services;
-using Microsoft.Extensions.Hosting;
 using BeatSlayerServer.Models.Configuration.Modules;
 
 namespace BSServer.Controllers
@@ -29,7 +28,7 @@ namespace BSServer.Controllers
 
         public IActionResult Test()
         {
-            return Content("Да бля, это капуста!");
+            return Content("Лютый флекс");
         }
 
 
