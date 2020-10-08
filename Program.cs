@@ -24,6 +24,12 @@ namespace BeatSlayerServer
 
             Payload.TracksFolder = settings.TracksFolder;
 
+            // Котылищеееее (так как нет docker)
+            if (Environment.CurrentDirectory.ToLower().Contains("prod-swap"))
+            {
+                settings.StartingUrl = "http://localhost:5002";
+            }
+
             CreateHostBuilder(args, settings.StartingUrl).Build().Run();
         }
         public static IHostBuilder CreateHostBuilder(string[] args, string url) =>
