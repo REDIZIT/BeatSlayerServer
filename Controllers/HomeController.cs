@@ -28,7 +28,7 @@ namespace BSServer.Controllers
 
         public IActionResult Test()
         {
-            return Content("Лютый флекс");
+            return Content("Rick Rolled");
         }
 
 
