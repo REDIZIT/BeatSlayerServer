@@ -20,4 +20,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd "/source/ServerProduction/BeatSlayerServer"
-            sudo dotnet /srv/swapper/Swapper.dll current
+            git pull origin master
+            sudo dotnet publish -c release -o $(dotnet /srv/swapper/Swapper.dll next | grep "Working" | sed 's/^.*: //' | tr -d ' ')	
+            sudo systemctl status $(dotnet /srv/swapper/Swapper.dll next | grep "Daemon" | sed 's/^.*: //' | tr -d ' ')	
+            sudo dotnet /srv/swapper/Swapper.dll swap
