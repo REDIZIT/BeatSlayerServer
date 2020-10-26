@@ -17,10 +17,7 @@ using InEditor.Analyze;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
 using BeatSlayerServer.Models.Database.Maps;
-using Microsoft.AspNetCore.Authorization;
-using BeatSlayerServer.Controllers;
 using BeatSlayerServer.Utils.Shop;
 using BeatSlayerServer.Models.Maps;
 using System.Threading;
@@ -73,6 +70,15 @@ namespace BeatSlayerServer.Core
             ctx.SaveChanges();
 
             return Content("*click* noice");
+        }
+
+        public string GiveRole(string nick, int roleId)
+        {
+            AccountDb acc = ctx.Players.FirstOrDefault(c => c.Nick == nick);
+            acc.Role = (Utils.Database.AccountRole)roleId;
+            ctx.SaveChanges();
+
+            return "Success";
         }
 
 
