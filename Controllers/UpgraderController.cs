@@ -166,7 +166,7 @@ namespace BeatSlayerServer.Core
         
             if (masterpass != "sosipisun") return "Not master";
             if (!accountService.TryFindAccount(nick, out AccountDb acc)) return "No such player";
-            if (purchaseId < 0) return "PurchaseId not set");
+            if (purchaseId < 0) return "PurchaseId not set";
             
             int removedCount = acc.Purchases.RemoveAll(c => c.ItemId == purchaseId);
             ctx.SaveChanges();
