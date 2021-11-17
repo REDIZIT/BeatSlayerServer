@@ -195,6 +195,11 @@
         "ItemId": 15,
         "Name": "AthenasTwinbladeSaber",
         "Cost": 28000
+      },
+      {
+        "ItemId": 16,
+        "Name": "CandyCane",
+        "Cost": 0
       }
     ]
   },
