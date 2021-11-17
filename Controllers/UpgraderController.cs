@@ -159,6 +159,20 @@ namespace BeatSlayerServer.Core
 
             return "Done";
         }
+        
+        public string RemovePurchase(string nick, string masterpass, int purchaseId = -1)
+        {
+            logger.LogInformation("RemovePurchase ({purchaseId}) for {nick} with masterpass = {masterpass}", purchaseId, nick, masterpass == "sosipisun");
+        
+            if (masterpass != "sosipisun") return "Not master";
+            if (!accountService.TryFindAccount(nick, out AccountDb acc)) return "No such player";
+            if (purchaseId < 0) return "PurchaseId not set");
+            
+            int removedCount = acc.Purchases.RemoveAll(c => c.ItemId == purchaseId);
+            ctx.SaveChanges();
+
+            return "Done. Removed count: " + removedCount;
+        }
 
         public string ViewPurchases(string nick, string masterpass)
         {
