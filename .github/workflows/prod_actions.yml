@@ -20,7 +20,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd "/source/ServerProduction/BeatSlayerServer"
-            git pull https://${{secrets.SSH_USER}}:${{secrets.SSH_PASSWORD}}@github.com/${{secrets.SSH_USER}}/BeatSlayerServer.git
+            git pull https://REDIZIT:${{secrets.GIT_TOKEN}}@github.com/REDIZIT/BeatSlayerServer.git
             sudo dotnet publish -c release -o $(dotnet /srv/swapper/Swapper.dll next | grep "Working" | sed 's/^.*: //' | tr -d ' ')
             sudo systemctl restart $(dotnet /srv/swapper/Swapper.dll next | grep "Daemon" | sed 's/^.*: //' | tr -d ' ')
             sleep 5
